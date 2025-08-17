@@ -3,9 +3,34 @@ layout: default
 title: Blog
 ---
 
+<div class='wrap'>
+    <div id='intro'>
+        <div class='quote'>
+            <p>I learned very early the difference between knowing the name of something and knowing something.</p>
+            <a href='https://en.wikiquote.org/wiki/Richard_Feynman' target='_blank'>Richard Feynman</a>
+        </div>
+    </div>
+
+    <div id='tags' class='section'>
+        <h3>Categories</h3>
+        <div class='tag-list'>
+            {% assign all_tags = site.posts | map: 'tags' | join: ',' | split: ',' | uniq | sort %}
+            {% for tag in all_tags %}
+                {% if tag != blank %}
+                    <span class='tag'>
+                        <a href='#' onclick='filterByTag("{{ tag }}")'>{{ tag }}</a>
+                    </span>
+                {% endif %}
+            {% endfor %}
+            <span class='tag'>
+                <a href='#' onclick='showAll()'>all</a>
+            </span>
+        </div>
+    </div>
+
 <div id='posts' class='section'>
     {% for post in site.posts %}
-        <div class='post-row'>
+        <div class='post-row' data-tags='{{ post.tags | join: "," }}' data-categories='{{ post.categories | join: "," }}'>
             <p class='post-title'>
                 <a href="{{ post.url }}">
                     {{ post.title }}
@@ -20,4 +45,33 @@ title: Blog
         </p>
         <span class='hidden'>{{ forloop.index }}</span>
     {% endfor %}
+</div>
+
+<script>
+function filterByTag(tag) {
+    const posts = document.querySelectorAll('.post-row');
+    posts.forEach(post => {
+        const tags = post.getAttribute('data-tags');
+        if (tags && tags.includes(tag)) {
+            post.style.display = 'block';
+            post.nextElementSibling.style.display = 'block'; // subtitle
+            post.nextElementSibling.nextElementSibling.style.display = 'block'; // hidden span
+        } else {
+            post.style.display = 'none';
+            post.nextElementSibling.style.display = 'none';
+            post.nextElementSibling.nextElementSibling.style.display = 'none';
+        }
+    });
+}
+
+function showAll() {
+    const posts = document.querySelectorAll('.post-row');
+    posts.forEach(post => {
+        post.style.display = 'block';
+        post.nextElementSibling.style.display = 'block';
+        post.nextElementSibling.nextElementSibling.style.display = 'block';
+    });
+}
+</script>
+</div>
 </div>
