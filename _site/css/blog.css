@@ -42,6 +42,42 @@ h1 {
 .mono {
   font-family: monospace;
 }
+
+/* Tags and Categories Styling */
+#tags {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+#tags h3 {
+  margin-bottom: 10px;
+  color: rgba(0, 0, 0, 0.7);
+  font-size: 1.1em;
+}
+
+.tag-list {
+  line-height: 1.8em;
+}
+
+.tag {
+  margin-right: 15px;
+  display: inline-block;
+}
+
+.tag a {
+  color: rgba(0, 0, 0, 0.6);
+  text-decoration: none;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 0.9em;
+  transition: background-color 0.2s ease;
+}
+
+.tag a:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: rgba(0, 0, 0, 0.8);
+}
 .nav {
   margin-top: 15px;
   margin-bottom: 15px;
