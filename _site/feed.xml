@@ -1,69 +1,157 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.2">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-11-19T20:23:58+00:00</updated><id>http://localhost:4000/feed.xml</id><entry><title type="html">A different mixture of lasso and ridge</title><link href="http://localhost:4000/blog/2025/05/17/lava/" rel="alternate" type="text/html" title="A different mixture of lasso and ridge" /><published>2025-05-17T00:00:00+01:00</published><updated>2025-05-17T00:00:00+01:00</updated><id>http://localhost:4000/blog/2025/05/17/lava</id><content type="html" xml:base="http://localhost:4000/blog/2025/05/17/lava/"><![CDATA[<p>If you know some high-dimensional statistics or machine learning, your toolkit probably has two heavy hitters for regularization: the Lasso ($l_1$ penalty) and Ridge regression ($l_2$ penalty).</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.2">Jekyll</generator><link href="https://vldrenth.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://vldrenth.github.io/" rel="alternate" type="text/html" /><updated>2025-11-19T21:01:50+00:00</updated><id>https://vldrenth.github.io/feed.xml</id><entry><title type="html">A different mixture of lasso and ridge</title><link href="https://vldrenth.github.io/blog/2025/05/17/lava/" rel="alternate" type="text/html" title="A different mixture of lasso and ridge" /><published>2025-05-17T00:00:00+01:00</published><updated>2025-05-17T00:00:00+01:00</updated><id>https://vldrenth.github.io/blog/2025/05/17/lava</id><content type="html" xml:base="https://vldrenth.github.io/blog/2025/05/17/lava/"><![CDATA[<p>When dealing with high-dimensional data, you’ll probably end up using one of two major methdos for regularization: the <strong>Lasso</strong> ($l_1$ penalty) and <strong>Ridge regression</strong> ($l_2$ penalty).</p>
 
-<p>We are generally taught a simple heuristic: use Lasso if you believe the truth is <strong>sparse</strong> (a few big signals, mostly zeros), and use Ridge if you believe the signal is <strong>dense</strong> (many small, non-zero effects). If you aren’t sure, you use the <strong>Elastic Net</strong>, which combines both penalties to try to get the best of both worlds.</p>
+<p>The way to choose between the two is usually as follows: use Lasso if you believe the truth is <strong>sparse</strong> (a few big signals, mostly zeros), and use Ridge if you believe the signal is <strong>dense</strong> (many small, non-zero effects). If you aren’t sure, or if you have many correlated variables that you suspect have non-zero effect, you use the <strong>Elastic Net</strong>, which combines both penalties to try to get the best of both worlds.</p>
 
-<p>I recently came across this interesting 2015 paper by Chernozhukov, Hansen, and Liao who say that there is a fundamental flaw in how we view this dichotomy. They introduce a method called <strong>Lava</strong>, based on a “Sparse + Dense” hypothesis. In the world of macro forecasting, this seems much closer to the ground truth, so I wanted to explore this a bit.</p>
+<p>However, the 2015 paper by Chernozhukov, Hansen, and Liao, <em>A Lava Attack on the Recovery of Sums of Dense and Sparse Signals</em>, challenges the premise that the Elastic Net is the optimal compromise. They argue that applying both penalties to a single parameter vector introduces a fundamental conflict that compromises recovery quality. Instead, they propose a new methodology, the <strong>Lava</strong> estimator, which handles a signal structure that is often more representative of real-world data: the <strong>Sparse + Dense</strong> hypothesis.</p>
 
-<h3 id="the-sparse--dense-hypothesis">The “Sparse + Dense” Hypothesis</h3>
+<hr />
 
-<p>The standard Elastic Net applies both penalties to the <em>same</em> parameter vector $\theta$. This forces the estimator to compromise. It tries to be sparse and dense at the same time, but because of the $l_1$ component, it will still force many coefficients to exactly zero .</p>
+<h2 id="the-fundamental-flaw-of-the-single-vector-penalty">The Fundamental Flaw of the Single-Vector Penalty</h2>
 
-<p>However, real-world signals often look like a superposition of two distinct structures:</p>
+<p>The standard regularization approach assumes a homogeneous signal structure, meaning the underlying parameter vector $\theta$ is either purely sparse or purely dense, or at best, a single vector that is <em>both</em> penalized for sparsity and constrained in magnitude (Elastic Net).</p>
+
+<p>The <strong>Elastic Net</strong> minimizes:
+\(\min_{\theta} \left\{ l(\text{data}, \theta) + \lambda_2 \|\theta\|_2^2 + \lambda_1 \|\theta\|_1 \right\}\)
+By combining the $l_1$ and $l_2$ penalties on the same vector $\theta$, the Elastic Net forces every single coefficient to compromise. The $l_1$ penalty strives to push small coefficients to <em>exactly zero</em> (selection), while the $l_2$ penalty strives to <em>shrink</em> all coefficients uniformly (stabilization).</p>
+
+<p>If the true signal $\theta$ is a mix of many small effects (the “dense” part) and a few large effects (the “sparse” part), the Elastic Net makes a poor trade-off:</p>
 <ol>
-  <li>A <strong>dense</strong> part: Many variables having small, non-zero effects (like background noise or genetic traits with tiny individual impacts).</li>
-  <li>A <strong>sparse</strong> part: A few variables having very large effects .</li>
+  <li>It severely <strong>shrinks</strong> the large, sparse coefficients due to the $l_2$ term, introducing significant bias.</li>
+  <li>It aggressively <strong>zeros out</strong> the small, dense coefficients due to the $l_1$ term, losing valuable predictive information.</li>
 </ol>
 
-<p>The core idea of the Lava estimator is to decompose the parameter of interest, $\theta$, into two separate vectors:
-\(\theta = \beta + \delta\)
-Here, $\beta$ represents the dense signal, and $\delta$ represents the sparse signal .</p>
+<p>The Elastic Net is, at its heart, still a <strong>sparsity-enforcing method</strong>; it is guaranteed to produce an estimate $\hat{\theta}$ with many exact zeros, when the penalty is sufficiently high.</p>
 
-<h3 id="the-lava-estimator">The Lava Estimator</h3>
+<hr />
 
-<p>Instead of penalizing $\theta$, Lava solves an optimization problem that penalizes $\beta$ and $\delta$ separately, using the penalties best suited for each.</p>
+<h2 id="the-sparse--dense-hypothesis-and-decomposition">The “Sparse + Dense” Hypothesis and Decomposition</h2>
 
-\[(\hat{\beta}, \hat{\delta}) = \arg \min_{\beta, \delta} \left\{ l(data, \beta + \delta) + \lambda_2 \|\beta\|_2^2 + \lambda_1 \|\delta\|_1 \right\}\]
+<p>The core theoretical innovation of Lava is recognizing that the true signal $\theta$ is a <strong>combination</strong> of two distinct, non-homogeneous structures:</p>
 
-<p>The final estimator is the sum: $\hat{\theta}_{lava} = \hat{\beta} + \hat{\delta}$ .</p>
+\[\theta = \beta + \delta\]
 
-<p>This distinction is subtle but powerful. Unlike the Elastic Net, which shrinks a single vector, Lava allows the “dense” part $\beta$ to pick up the small signals using Ridge regularization, while the “sparse” part $\delta$ uses Lasso regularization to capture the large spikes.</p>
-
-<h3 id="visualizing-the-shrinkage">Visualizing the Shrinkage</h3>
-
-<p>The intuition becomes much clearer when you look at the shrinkage functions: the map that transforms a raw observation $z$ into an estimated coefficient.</p>
-
-<p>In the standard Lasso (or soft-thresholding), small coefficients are set strictly to zero. In Ridge, coefficients are scaled down linearly but never reach zero.</p>
-
-<p>Lava does something unique. It acts as a bridge between the two:</p>
+<p>Where:</p>
 <ul>
-  <li><strong>For small signals:</strong> It behaves like Ridge regression. The $l_2$ penalty dominates, preserving the small dense signals rather than zeroing them out.</li>
-  <li><strong>For large signals:</strong> It behaves like the Lasso. The $l_1$ penalty takes over to handle the large outliers.</li>
-  <li><strong>Continuity:</strong> It connects these two behaviors continuously .</li>
+  <li>$\beta \in \mathbb{R}^p$ represents the <strong>dense signal</strong>. This vector is characterized by having many small, non-zero entries. This is the background structure, the cumulative effect of many variables.</li>
+  <li>$\delta \in \mathbb{R}^p$ represents the <strong>sparse signal</strong>. This vector is characterized by having a few large, non-zero entries and the rest are exactly zero. This captures the few dominant drivers.</li>
 </ul>
 
-<p>Because of the underlying $l_2$ penalty on the dense part, Lava never produces an exactly sparse solution (coefficients set to exactly zero) unless the input is exactly zero . This makes it distinct from the Elastic Net, which is essentially a sparsity-based method with some added shrinkage.</p>
+<p>This structure is highly relevant in fields like macroeconomics (where many indirect factors have small effects, but a few obviously important predictors have large effects).</p>
 
-<h3 id="why-lava">Why “Lava”?</h3>
+<hr />
 
-<p>The authors named it “Lava” to emphasize that the method aims to capture or “wipe out” both sparse and dense signals simultaneously. Also, it just sounds a bit more interesting than lasso or ridge, so why not lava.</p>
+<h2 id="the-lava-estimator-separate-penalization">The Lava Estimator: Separate Penalization</h2>
 
-<h3 id="does-it-work">Does it work?</h3>
+<p>Instead of penalizing the combined vector $\theta$, the Lava estimator lifts the problem to a $2p$-dimensional space and penalizes $\beta$ and $\delta$ separately, using the penalty best suited for each structure.</p>
 
-<p>In simulations where the true signal is a mix of sparse and dense components, Lava strictly dominates both Lasso and Ridge.</p>
+<p>The optimization problem for Lava is defined as:</p>
+
+\[(\hat{\beta}, \hat{\delta}) = \arg \min_{\beta, \delta} \left\{ l(\text{data}, \beta + \delta) + \lambda_2 \|\beta\|_2^2 + \lambda_1 \|\delta\|_1 \right\}\]
+
+<p>The final estimator is the sum: $\hat{\theta}_{lava} = \hat{\beta} + \hat{\delta}$.</p>
+
+<p><strong>Intuition Behind the Penalties:</strong></p>
+
+<ol>
+  <li><strong>$\lambda_2 |\beta|_2^2$ (Ridge on Dense):</strong> The Ridge penalty ($l_2$) is applied to $\beta$. This ensures that the dense component is <em>well-behaved</em> (coefficients are small and controlled) but <strong>non-sparse</strong>. Ridge never forces coefficients to zero unless the estimate is identically zero. This preserves the information contained in the small background signals.</li>
+  <li><strong>$\lambda_1 |\delta|_1$ (Lasso on Sparse):</strong> The Lasso penalty ($l_1$) is applied to $\delta$. This ensures that the sparse component is, in fact, <strong>sparse</strong>, effectively identifying and separating the large spikes from the background noise.</li>
+</ol>
+
+<p>This formulation allows the estimator to effectively <em>decouple</em> the tasks of shrinkage and selection. The $l_2$ term handles magnitude control (shrinkage), and the $l_1$ term handles variable selection (sparsity).</p>
+
+<p>Crucially, because of the $l_2$ penalty on the $\beta$ component, the final estimate $\hat{\theta}_{lava}$ is <strong>never exactly sparse</strong> (unless the truth is exactly zero). This distinguishes it fundamentally from Elastic Net and Lasso, which are designed to produce selection results.</p>
+
+<hr />
+
+<h2 id="visualizing-the-shrinkage-function">Visualizing the Shrinkage Function</h2>
+
+<p>The most compelling insight into the Lava estimator’s behavior comes from its one-dimensional <strong>shrinkage function</strong>, $d(z)$. This function maps a raw observation $z$ (or single coefficient) to its estimated value $\hat{\theta}$.</p>
+
+<p>Consider the one-dimensional case of estimating $\theta$ from a noisy observation $z = \theta + \epsilon$. The Lava estimator $\hat{\theta}_{lava}$ solves the simplified problem. The resulting closed-form solution for the shrinkage function, derived in the paper, reveals a piece-wise structure:</p>
+
+\[d_{lava}(z) = \begin{cases}
+z - \lambda_1 / 2, &amp; \text{if } z &gt; \tau \\
+(1-k)z, &amp; \text{if } |z| \le \tau \\
+z + \lambda_1 / 2, &amp; \text{if } z &lt; -\tau
+\end{cases}\]
+
+<p>Where $\tau = \lambda_1 / (2k)$ is the threshold, and $k = \lambda_2 / (1+\lambda_2)$ is a constant related to the Ridge parameter.</p>
+
+<p>This function acts as a bridge between Lasso and Ridge, exhibiting optimal behavior in different regimes:</p>
+
 <ul>
-  <li>If the signal is purely sparse, Lava performs as well as Lasso.</li>
-  <li>If the signal is purely dense, Lava performs as well as Ridge.</li>
-  <li>In the “middle ground” (Sparse + Dense), it significantly outperforms both.</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>**For $</td>
+          <td>z</td>
+          <td>\le \tau$ (Small Signals):** The shrinkage is $d_{lava}(z) = (1-k)z$. This is the exact form of <strong>Ridge regression</strong> shrinkage. The small coefficients are scaled down but <strong>never set to zero</strong>. This preserves the dense signals.</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>**For $</td>
+          <td>z</td>
+          <td>&gt; \tau$ (Large Signals):** The shrinkage is $d_{lava}(z) = z \mp \lambda_1/2$. This is the exact form of <strong>Lasso (Soft-Thresholding)</strong> shrinkage, applied to the component that has passed the initial Ridge-like filter. This allows the large spikes to be estimated with less bias than a full $l_2$ penalty would impose.</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
 </ul>
 
-<p>There is also a <strong>Post-Lava</strong> variant. Similar to the “Post-Lasso” technique, this involves running Lava to identify the structure, and then refitting the sparse part to remove the shrinkage bias introduced by the $l_1$ penalty.</p>
+<p>Lava selectively applies the most beneficial shrinkage for the magnitude of the signal: Ridge for the small coefficients, and Lasso for the large ones, all while maintaining continuity.</p>
 
-<h3 id="implementing">Implementing</h3>
-<p>I have implemented the Lava Regression algorithm on <a href="https://github.com/vldrenth/lavapy">GitHub at vldrenth/lavapy</a>. To see just how simple it is, I started by implementing it with <code class="language-plaintext highlighter-rouge">cvxpy</code>. However, this uses general convex solvers, and we can do a lot better! It turns out, lava can be solved by just using lasso in a clever way.</p>
+<hr />
 
-<h3 id="summary">Summary</h3>
+<h2 id="computational-efficiency-solving-lava-via-lasso">Computational Efficiency: Solving Lava via Lasso</h2>
 
-<p>If you suspect your data contains a few needles in a haystack (sparse) <em>plus</em> a lot of hay that actually matters (dense), the Elastic Net might be over-sparsifying your model. Lava offers a mathematically sound way to model the superposition of these two signal types directly.</p>]]></content><author><name></name></author><category term="statistics" /><category term="introduction" /><category term="jekyll" /><category term="blog" /><summary type="html"><![CDATA[If you know some high-dimensional statistics or machine learning, your toolkit probably has two heavy hitters for regularization: the Lasso ($l_1$ penalty) and Ridge regression ($l_2$ penalty).]]></summary></entry><entry><title type="html">Welcome to My Blog</title><link href="http://localhost:4000/blog/2025/04/02/example/" rel="alternate" type="text/html" title="Welcome to My Blog" /><published>2025-04-02T00:00:00+01:00</published><updated>2025-04-02T00:00:00+01:00</updated><id>http://localhost:4000/blog/2025/04/02/example</id><content type="html" xml:base="http://localhost:4000/blog/2025/04/02/example/"><![CDATA[<p>Welcome to my personal website! This is my first blog post using the minimalist Jekyll theme.</p>
+<p>Despite being defined over $2p$ variables, the Lava problem is convex and can be solved extremely efficiently. The authors’ <strong>Key Characterization</strong> (Theorem 3.1) proves that the Lava estimator can be computed by solving a standard Lasso problem on <em>transformed</em> data.</p>
+
+<p>This is critical because it means existing, highly optimized Lasso solvers (like those based on coordinate descent) can be repurposed, avoiding the need for custom, slower general convex optimization routines.</p>
+
+<h3 id="the-profiling-technique">The Profiling Technique</h3>
+
+<ol>
+  <li>
+    <p><strong>Profile out $\beta$:</strong> For any fixed $\delta$, the optimal $\hat{\beta}(\delta)$ is the standard Ridge solution applied to the residuals $Y - X\delta$.
+\(\hat{\beta}(\delta) = (X'X + n\lambda_2 I)^{-1} X'(Y - X\delta)\)</p>
+  </li>
+  <li>
+    <p><strong>Transformed Lasso:</strong> By substituting this $\hat{\beta}(\delta)$ back into the objective function, the optimization collapses into a standard Lasso problem for $\delta$:
+\(\hat{\delta} = \arg \min_{\delta} \frac{1}{n} \| \tilde{Y} - \tilde{X}\delta \|_2^2 + \lambda_1 \|\delta\|_1\)
+Where $\tilde{X}$ and $\tilde{Y}$ are transformed versions of $X$ and $Y$ that incorporate the initial Ridge penalty $\lambda_2$.</p>
+  </li>
+</ol>
+
+<p>The transformation effectively pre-whitens the data, accounting for the dense signal $\beta$ which is already being handled by the $l_2$ penalty. Once the data is transformed, the remaining signal is more purely sparse, allowing the Lasso to optimally isolate the $\delta$ spikes.</p>
+
+<hr />
+
+<h2 id="post-lava-for-bias-reduction">Post-Lava for Bias Reduction</h2>
+
+<p>Like all $l_1$-penalized methods, the Lava estimator suffers from <strong>shrinkage bias</strong>. The $\lambda_1 |\delta|_1$ penalty pulls the estimated coefficients of the large spikes ($\hat{\delta}$) towards zero, even if they are important.</p>
+
+<p>To mitigate this, the paper proposes a two-step procedure: <strong>Post-Lava</strong>.</p>
+
+<ol>
+  <li><strong>Run Lava:</strong> Compute $\hat{\theta}_{lava} = \hat{\beta} + \hat{\delta}$. This step is used <em>only</em> to identify the <strong>support set</strong> $\mathcal{S}$ (the indices where $\hat{\delta}_j \neq 0$).</li>
+  <li><strong>Refit without penalty:</strong> Define $\hat{\theta}_{Post-Lava}$ as the estimate obtained by running a simple least squares regression using only the variables in the support set $\mathcal{S}$, but including the dense component $\beta$.</li>
+</ol>
+
+<p>This two-step process preserves the selection benefit of the $l_1$ penalty (identifying the correct sparse variables) but removes the bias introduced by the shrinkage, leading to estimates that are often more accurate in terms of prediction risk and parameter recovery.</p>
+
+<hr />
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>The Lava estimator provides an elegant and efficient solution to a common high-dimensional modeling problem: the combination of sparse and dense signals. More importantly, it has a pretty cool name, which may or may not be why I <strong>really</strong> wanted to try it.</p>
+
+<p>If you suspect your data contains a few needles in a haystack (sparse) <em>plus</em> a lot of hay that actually matters (dense) (Useful hay? Okay, my best analogy I admit…), the Elastic Net might be aggressively over-sparsifying your model and failing to recover the full signal. Lava’s decomposition and component-specific penalization strategy offer a (in theory at least) more sound approach for recovering the parameters. I still need to run a proper comparison on some actual data, because of course there is a reason Lasso and ridge have been popular for so long. That will be for another day, but I did implement it in Python on Github <a href="https://github.com/vldrenth/lavapy">vldrenth/lavapy</a>.</p>]]></content><author><name></name></author><category term="statistics" /><category term="econometrics" /><category term="theory" /><category term="high-dimensional-stats" /><category term="regularization" /><summary type="html"><![CDATA[When dealing with high-dimensional data, you’ll probably end up using one of two major methdos for regularization: the Lasso ($l_1$ penalty) and Ridge regression ($l_2$ penalty).]]></summary></entry><entry><title type="html">Welcome to My Blog</title><link href="https://vldrenth.github.io/blog/2025/04/02/example/" rel="alternate" type="text/html" title="Welcome to My Blog" /><published>2025-04-02T00:00:00+01:00</published><updated>2025-04-02T00:00:00+01:00</updated><id>https://vldrenth.github.io/blog/2025/04/02/example</id><content type="html" xml:base="https://vldrenth.github.io/blog/2025/04/02/example/"><![CDATA[<p>Welcome to my personal website! This is my first blog post using the minimalist Jekyll theme.</p>
 
 <p>This site will be a place where I share my thoughts, projects, and experiences.</p>
 

@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
-<loc>http://localhost:4000/blog/2025/04/02/example/</loc>
+<loc>https://vldrenth.github.io/blog/2025/04/02/example/</loc>
 <lastmod>2025-04-02T00:00:00+01:00</lastmod>
 </url>
 <url>
-<loc>http://localhost:4000/blog/2025/05/17/lava/</loc>
+<loc>https://vldrenth.github.io/blog/2025/05/17/lava/</loc>
 <lastmod>2025-05-17T00:00:00+01:00</lastmod>
 </url>
 <url>
-<loc>http://localhost:4000/blog/</loc>
+<loc>https://vldrenth.github.io/blog/</loc>
 </url>
 <url>
-<loc>http://localhost:4000/</loc>
+<loc>https://vldrenth.github.io/</loc>
 </url>
 </urlset>
