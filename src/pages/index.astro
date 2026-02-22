@@ -29,10 +29,7 @@ const sortedPosts = posts
     </section>
 
     <section class="recent-posts">
-      <h2>
-        <span class="section-marker">//</span>
-        Recent Notes
-      </h2>
+      <h2>Recent Notes</h2>
       <div class="posts-grid">
         {sortedPosts.map((post) => (
           <a href={`/blog/${post.id}`} class="post-card">
