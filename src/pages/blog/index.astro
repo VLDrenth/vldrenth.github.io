@@ -1,0 +1,170 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+const sortedPosts = posts
+  .filter(post => post.data.published !== false)
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+---
+
+<BaseLayout title="Notes | Vincent Drenth">
+  <div class="container">
+    <header class="page-header">
+      <h1 class="page-title">Notes</h1>
+      <p class="page-description">
+        Research notes, derivations, and explorations in statistics and related fields.
+      </p>
+    </header>
+
+    <div class="posts-list">
+      {sortedPosts.map((post) => (
+        <a href={`/blog/${post.id}`} class="post-item">
+          <div class="post-date-col">
+            <time datetime={post.data.date}>
+              {new Date(post.data.date).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+              })}
+            </time>
+          </div>
+          <div class="post-content-col">
+            <h2 class="post-title">{post.data.title}</h2>
+            {post.data.subtitle && (
+              <p class="post-subtitle">{post.data.subtitle}</p>
+            )}
+            <div class="post-meta">
+              {post.data.categories && post.data.categories.map((cat: string) => (
+                <span class="category">{cat}</span>
+              ))}
+              {post.data.tags && post.data.tags.slice(0, 3).map((tag: string) => (
+                <span class="tag">#{tag}</span>
+              ))}
+            </div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-header {
+    padding: 3rem 0 4rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 3rem;
+  }
+
+  .page-title {
+    font-size: 2.5rem;
+    margin: 0 0 1rem 0;
+    background: linear-gradient(135deg, var(--text-primary), var(--accent-rust));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-description {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin: 0;
+    max-width: 500px;
+  }
+
+  .posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .post-item {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 2rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .post-item:hover {
+    background: linear-gradient(90deg, transparent, var(--bg-secondary) 10%, var(--bg-secondary) 90%, transparent);
+    text-decoration: none;
+  }
+
+  .post-item:first-child {
+    padding-top: 0;
+  }
+
+  .post-date-col {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    padding-top: 0.3rem;
+  }
+
+  .post-date-col time {
+    display: block;
+  }
+
+  .post-content-col {
+    /* content */
+  }
+
+  .post-title {
+    font-size: 1.25rem;
+    margin: 0 0 0.25rem 0;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    transition: color 0.2s ease;
+  }
+
+  .post-item:hover .post-title {
+    color: var(--accent-rust);
+  }
+
+  .post-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin: 0 0 0.75rem 0;
+    line-height: 1.5;
+  }
+
+  .post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  .category {
+    padding: 0.15rem 0.5rem;
+    background: var(--bg-elevated);
+    border-radius: 3px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .tag {
+    color: var(--accent-amber);
+    opacity: 0.7;
+  }
+
+  @media (max-width: 768px) {
+    .post-item {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+
+    .post-date-col {
+      padding-top: 0;
+    }
+
+    .page-title {
+      font-size: 2rem;
+    }
+  }
+</style>

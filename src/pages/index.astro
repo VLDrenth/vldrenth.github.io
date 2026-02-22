@@ -1,0 +1,566 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+// Get all blog posts, sorted by date
+const posts = await getCollection('blog');
+const sortedPosts = posts
+  .filter(post => post.data.published !== false)
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .slice(0, 3);
+---
+
+<BaseLayout title="Vincent Drenth">
+  <div class="container">
+    <section class="hero">
+      <div class="hero-content">
+        <p class="hero-greeting mono">$ whoami</p>
+        <h1 class="hero-name">Vincent Drenth</h1>
+        <p class="hero-tagline">
+          Exploring <span class="highlight">statistics</span>,
+          <span class="highlight">econometrics</span>,
+          and <span class="highlight">optimization</span>.
+        </p>
+        <p class="hero-description">
+          I write about methods I find interesting, mostly in high-dimensional statistics
+          and machine learning. Sometimes I implement them. Occasionally they even work.
+        </p>
+      </div>
+      <canvas id="particles" class="particles-canvas"></canvas>
+    </section>
+
+    <section class="recent-posts">
+      <h2>
+        <span class="section-marker">//</span>
+        Recent Notes
+      </h2>
+      <div class="posts-grid">
+        {sortedPosts.map((post) => (
+          <a href={`/blog/${post.id}`} class="post-card">
+            <div class="post-card-meta">
+              <time>{new Date(post.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</time>
+              {post.data.categories && (
+                <span class="card-category">{post.data.categories[0]}</span>
+              )}
+            </div>
+            <h3 class="post-card-title">{post.data.title}</h3>
+            {post.data.subtitle && (
+              <p class="post-card-subtitle">{post.data.subtitle}</p>
+            )}
+            <span class="read-more">Read &rarr;</span>
+          </a>
+        ))}
+      </div>
+      <a href="/blog" class="view-all">
+        View all notes <span>&rarr;</span>
+      </a>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  // Langevin dynamics visualization with accumulating heatmap
+  const canvas = document.getElementById('particles') as HTMLCanvasElement;
+  if (canvas) {
+    const ctx = canvas.getContext('2d')!;
+    let width: number, height: number;
+
+    // Target distribution: mixture of Gaussians
+    const modes = [
+      { x: 0.28, y: 0.35, sx: 0.09, sy: 0.11, weight: 0.35 },
+      { x: 0.72, y: 0.32, sx: 0.11, sy: 0.09, weight: 0.35 },
+      { x: 0.50, y: 0.72, sx: 0.10, sy: 0.10, weight: 0.30 },
+    ];
+
+    function density(x: number, y: number): number {
+      let d = 0;
+      for (const mode of modes) {
+        const dx = (x - mode.x) / mode.sx;
+        const dy = (y - mode.y) / mode.sy;
+        d += mode.weight * Math.exp(-0.5 * (dx * dx + dy * dy));
+      }
+      return d;
+    }
+
+    // Gradient of log-density (analytically computed)
+    function gradLogDensity(x: number, y: number): {gx: number, gy: number} {
+      let gx = 0, gy = 0;
+      let totalDensity = 0;
+
+      for (const mode of modes) {
+        const dx = (x - mode.x) / mode.sx;
+        const dy = (y - mode.y) / mode.sy;
+        const g = mode.weight * Math.exp(-0.5 * (dx * dx + dy * dy));
+        totalDensity += g;
+
+        // Gradient of this component
+        gx += g * (-dx / mode.sx);
+        gy += g * (-dy / mode.sy);
+      }
+
+      // Gradient of log = gradient / density
+      const d = totalDensity + 1e-10;
+      return { gx: gx / d, gy: gy / d };
+    }
+
+    // Empirical density grid
+    const GRID_RES = 60;
+    let sampleGrid: number[][] = [];
+    let maxSampleCount = 1;
+
+    function initGrid() {
+      sampleGrid = [];
+      for (let i = 0; i < GRID_RES; i++) {
+        sampleGrid[i] = [];
+        for (let j = 0; j < GRID_RES; j++) {
+          sampleGrid[i][j] = 0;
+        }
+      }
+      maxSampleCount = 1;
+    }
+
+    function addSample(x: number, y: number) {
+      const i = Math.floor(x * (GRID_RES - 1));
+      const j = Math.floor(y * (GRID_RES - 1));
+      if (i >= 0 && i < GRID_RES && j >= 0 && j < GRID_RES) {
+        sampleGrid[i][j]++;
+        if (sampleGrid[i][j] > maxSampleCount) {
+          maxSampleCount = sampleGrid[i][j];
+        }
+      }
+    }
+
+    // Box-Muller for Gaussian noise
+    function randn(): number {
+      const u1 = Math.random();
+      const u2 = Math.random();
+      return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+    }
+
+    // Particles with momentum (underdamped Langevin)
+    interface Particle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      history: Array<{x: number, y: number}>;
+    }
+
+    const particles: Particle[] = [];
+    const NUM_PARTICLES = 20;
+    const HISTORY_LENGTH = 120;
+
+    // Langevin parameters
+    const dt = 0.004;        // Time step (slower)
+    const gamma = 2.5;       // Friction coefficient
+    const temp = 1.0;        // Temperature
+
+    function initParticles() {
+      particles.length = 0;
+      for (let i = 0; i < NUM_PARTICLES; i++) {
+        // Distribute across modes
+        const mode = modes[i % modes.length];
+        particles.push({
+          x: mode.x + (Math.random() - 0.5) * 0.1,
+          y: mode.y + (Math.random() - 0.5) * 0.1,
+          vx: randn() * 0.1,
+          vy: randn() * 0.1,
+          history: [],
+        });
+      }
+    }
+
+    function langevinStep(p: Particle) {
+      // Underdamped Langevin dynamics:
+      // dv = -γv dt + ∇log π(x) dt + √(2γT) dW
+      // dx = v dt
+
+      const grad = gradLogDensity(p.x, p.y);
+      const noise = Math.sqrt(2 * gamma * temp * dt);
+
+      // Update velocity
+      p.vx += (-gamma * p.vx + grad.gx) * dt + noise * randn();
+      p.vy += (-gamma * p.vy + grad.gy) * dt + noise * randn();
+
+      // Update position
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+
+      // Reflective boundaries
+      if (p.x < 0.03) { p.x = 0.03; p.vx *= -0.5; }
+      if (p.x > 0.97) { p.x = 0.97; p.vx *= -0.5; }
+      if (p.y < 0.03) { p.y = 0.03; p.vy *= -0.5; }
+      if (p.y > 0.97) { p.y = 0.97; p.vy *= -0.5; }
+
+      // Record sample
+      addSample(p.x, p.y);
+
+      // Update history
+      p.history.push({ x: p.x, y: p.y });
+      if (p.history.length > HISTORY_LENGTH) {
+        p.history.shift();
+      }
+    }
+
+    function resize() {
+      const rect = canvas.parentElement!.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      width = canvas.width;
+      height = canvas.height;
+    }
+
+    // Contour paths for target distribution
+    let contourPaths: Array<{path: Path2D, level: number}> = [];
+
+    function computeContours() {
+      contourPaths = [];
+      const levels = [0.12, 0.30, 0.55];
+      const res = 100;
+      const grid: number[][] = [];
+
+      for (let i = 0; i <= res; i++) {
+        grid[i] = [];
+        for (let j = 0; j <= res; j++) {
+          grid[i][j] = density(i / res, j / res);
+        }
+      }
+
+      for (const level of levels) {
+        const path = new Path2D();
+
+        for (let i = 0; i < res; i++) {
+          for (let j = 0; j < res; j++) {
+            const x = i / res;
+            const y = j / res;
+            const cellW = 1 / res;
+            const cellH = 1 / res;
+
+            const v0 = grid[i][j];
+            const v1 = grid[i + 1][j];
+            const v2 = grid[i + 1][j + 1];
+            const v3 = grid[i][j + 1];
+
+            const c0 = v0 >= level ? 1 : 0;
+            const c1 = v1 >= level ? 2 : 0;
+            const c2 = v2 >= level ? 4 : 0;
+            const c3 = v3 >= level ? 8 : 0;
+            const caseIndex = c0 | c1 | c2 | c3;
+
+            if (caseIndex === 0 || caseIndex === 15) continue;
+
+            const lerp = (a: number, b: number, va: number, vb: number) =>
+              a + (level - va) / (vb - va) * (b - a);
+
+            const top = { x: lerp(x, x + cellW, v0, v1), y: y };
+            const right = { x: x + cellW, y: lerp(y, y + cellH, v1, v2) };
+            const bottom = { x: lerp(x, x + cellW, v3, v2), y: y + cellH };
+            const left = { x: x, y: lerp(y, y + cellH, v0, v3) };
+
+            const drawLine = (p1: {x: number, y: number}, p2: {x: number, y: number}) => {
+              path.moveTo(p1.x * width, p1.y * height);
+              path.lineTo(p2.x * width, p2.y * height);
+            };
+
+            switch (caseIndex) {
+              case 1: case 14: drawLine(left, top); break;
+              case 2: case 13: drawLine(top, right); break;
+              case 3: case 12: drawLine(left, right); break;
+              case 4: case 11: drawLine(right, bottom); break;
+              case 5: drawLine(left, top); drawLine(right, bottom); break;
+              case 6: case 9: drawLine(top, bottom); break;
+              case 7: case 8: drawLine(left, bottom); break;
+              case 10: drawLine(top, right); drawLine(left, bottom); break;
+            }
+          }
+        }
+
+        contourPaths.push({ path, level });
+      }
+    }
+
+    function drawHeatmap() {
+      const cellW = width / GRID_RES;
+      const cellH = height / GRID_RES;
+
+      for (let i = 0; i < GRID_RES; i++) {
+        for (let j = 0; j < GRID_RES; j++) {
+          const count = sampleGrid[i][j];
+          if (count > 0) {
+            // Normalize by max and apply sqrt for better visibility of low counts
+            const intensity = Math.sqrt(count / maxSampleCount);
+            const alpha = intensity * 0.35;
+
+            // Warm color gradient: darker rust for low, brighter amber for high
+            const r = Math.floor(140 + intensity * 90);
+            const g = Math.floor(60 + intensity * 80);
+            const b = Math.floor(30 + intensity * 30);
+
+            ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            ctx.fillRect(i * cellW, j * cellH, cellW + 1, cellH + 1);
+          }
+        }
+      }
+    }
+
+    function draw() {
+      // Clear
+      ctx.fillStyle = '#0f0d0b';
+      ctx.fillRect(0, 0, width, height);
+
+      // Draw accumulated heatmap
+      drawHeatmap();
+
+      // Update particles
+      for (const p of particles) {
+        langevinStep(p);
+        langevinStep(p);
+      }
+
+      // Draw trails
+      for (const p of particles) {
+        if (p.history.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo(p.history[0].x * width, p.history[0].y * height);
+
+          for (let i = 1; i < p.history.length; i++) {
+            ctx.lineTo(p.history[i].x * width, p.history[i].y * height);
+          }
+
+          ctx.strokeStyle = 'rgba(255, 220, 180, 0.3)';
+          ctx.lineWidth = 1.2;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.stroke();
+        }
+
+        // Current position - bright dot
+        ctx.beginPath();
+        ctx.arc(p.x * width, p.y * height, 3, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 230, 200, 0.95)';
+        ctx.fill();
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    function init() {
+      resize();
+      initGrid();
+      computeContours();
+      initParticles();
+    }
+
+    window.addEventListener('resize', () => {
+      resize();
+      computeContours();
+    });
+
+    init();
+    draw();
+  }
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    padding: 4rem 0 6rem;
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+  }
+
+  .particles-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    background: radial-gradient(
+      ellipse 120% 100% at 0% 50%,
+      rgba(15, 13, 11, 0.95) 0%,
+      rgba(15, 13, 11, 0.85) 40%,
+      rgba(15, 13, 11, 0.4) 70%,
+      transparent 100%
+    );
+    padding: 2rem 3rem 2rem 0;
+    margin: -2rem 0;
+    border-radius: 0 20px 20px 0;
+  }
+
+  .hero-greeting {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-name {
+    font-size: 3.5rem;
+    margin: 0 0 1rem 0;
+    background: linear-gradient(135deg, var(--accent-rust), var(--accent-amber));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: glow 3s ease-in-out infinite;
+  }
+
+  @keyframes glow {
+    0%, 100% { filter: drop-shadow(0 0 5px rgba(217, 119, 72, 0.3)); }
+    50% { filter: drop-shadow(0 0 20px rgba(217, 119, 72, 0.5)); }
+  }
+
+  .hero-tagline {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin: 0 0 1.5rem 0;
+  }
+
+  .hero-tagline .highlight {
+    color: var(--accent-rust);
+  }
+
+  .hero-description {
+    max-width: 500px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .recent-posts {
+    padding: 4rem 0;
+  }
+
+  .recent-posts h2 {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .recent-posts h2::before {
+    content: none;
+  }
+
+  .section-marker {
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .posts-grid {
+    display: grid;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .post-card {
+    display: block;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid transparent;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .post-card:hover {
+    border-color: var(--accent-rust);
+    box-shadow: 0 0 20px rgba(217, 119, 72, 0.15);
+    transform: translateY(-2px);
+    text-decoration: none;
+  }
+
+  .post-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .post-card-meta time {
+    color: var(--accent-amber);
+  }
+
+  .card-category {
+    padding: 0.1rem 0.4rem;
+    background: var(--bg-elevated);
+    border-radius: 3px;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+  }
+
+  .post-card-title {
+    font-size: 1.25rem;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+  }
+
+  .post-card-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .read-more {
+    display: inline-block;
+    margin-top: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--accent-rust);
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s ease;
+  }
+
+  .post-card:hover .read-more {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+
+  .view-all:hover {
+    color: var(--accent-rust);
+    text-decoration: none;
+  }
+
+  .view-all span {
+    transition: transform 0.2s ease;
+  }
+
+  .view-all:hover span {
+    transform: translateX(3px);
+  }
+
+  @media (max-width: 768px) {
+    .hero-name {
+      font-size: 2.5rem;
+    }
+
+    .hero-tagline {
+      font-size: 1rem;
+    }
+  }
+</style>

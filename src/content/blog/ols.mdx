@@ -1,0 +1,254 @@
+---
+title: Seven Roads to OLS
+subtitle: How many ways can you derive the same estimator?
+date: 2026-01-05
+keywords: ols, linear-regression, estimators, least-squares
+categories: [statistics, econometrics]
+tags: [theory]
+published: true
+---
+
+*How many ways can you derive the same estimator?*
+
+Everyone who has ever touched statistics (or had to answer any question about data) has hopefully heard of OLS. Despite the many innovations in methodology, OLS is still the workhorse of many (most?) model fitting procedures. It is therefore never a bad idea to try to build a little more understanding of this estimator. Here, I do so by trying to derive OLS in as many ways as I personally know
+
+I can count to seven so far. If you know another one, I'd like to hear it.
+
+---
+
+## 1. Minimize Squared Errors
+
+Shockingly, the Least Squares estimator can indeed be derived by minimizing the sum of squared errors. This is the version everyone knows, so let's get it out of the way (or just skip it).
+
+Given $n$ observations $(y_i, x_i)$, find coefficients $\beta$ that minimize the sum of squared residuals:
+
+$$\hat{\beta} = \arg\min_\beta \sum_{i=1}^n (y_i - x_i'\beta)^2 = \arg\min_\beta \|Y - X\beta\|^2$$
+
+In matrix form, the objective is $(Y - X\beta)'(Y - X\beta)$. Differentiate with respect to $\beta$:
+
+$$\frac{\partial}{\partial \beta}(Y - X\beta)'(Y - X\beta) = -2X'Y + 2X'X\beta$$
+
+Set to zero, solve:
+
+$$X'X\beta = X'Y \implies \hat{\beta} = (X'X)^{-1}X'Y$$
+
+And that's OLS, easy.
+
+If an interviewer asks you to derive OLS, you'll probably go with this route, but it's a little boring so let's move on.
+
+---
+
+## 2. Maximum Likelihood (Gaussian Errors)
+
+Slightly more interesting, is to start from a data generating process:
+
+$$Y = X\beta + \varepsilon, \quad \varepsilon \sim \mathcal{N}(0, \sigma^2 I)$$
+
+The likelihood of observing $Y$ given $\beta$ and $\sigma^2$:
+
+$$L(\beta, \sigma^2 | Y) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(y_i - x_i'\beta)^2}{2\sigma^2}\right)$$
+
+Or equivalently the log-likelihood:
+
+$$\ell(\beta, \sigma^2) = -\frac{n}{2}\log(2\pi\sigma^2) - \frac{1}{2\sigma^2}\sum_{i=1}^n(y_i - x_i'\beta)^2$$
+
+Now, we can maximize over $\beta$. That second term is just $-\frac{1}{2\sigma^2}\|Y - X\beta\|^2$. The $\sigma^2$ is a positive constant with respect to $\beta$. You're minimizing the sum of squared residuals again.
+
+The Gaussian is special this way. Other likelihoods give other estimators. Laplace errors give LAD (least absolute deviations). The t-distribution gives robust regression. Only the Gaussian routes you back to least squares (This does NOT mean that OLS assumes Gaussian errors which somehow is still a misconception).
+
+I could extend this list to 7 approaches, by considering Bayesian linear regression with a diffuse prior and Gaussian error-terms. That, however, would be cheating so let's leave it here.
+
+---
+
+## 3. Orthogonal Projection
+
+We can also take a more geometric approach. Think of $Y$ as a point in $\mathbb{R}^n$. The columns of $X$ span a $k$-dimensional subspace $\mathcal{C}(X)$ (assuming full rank). Any fitted value $\hat{Y} = X\beta$ lives in this subspace.
+
+Question: which point in $\mathcal{C}(X)$ is closest to $Y$?
+
+Answer: the orthogonal projection. Dropping a perpendicular from $Y$ to a subspace, minimizes the distance between $Y$ and the subspace.
+
+The projection matrix is given by the following (this is just the general form for orthogonal projections onto a column space):
+
+$$P_X = X(X'X)^{-1}X'$$
+
+Applying this projection matrix is just a matrix multiplication:
+
+$$\hat{Y} = P_X Y = X(X'X)^{-1}X'Y$$
+
+The residuals $\hat{\varepsilon} = Y - \hat{Y}$ are orthogonal to every column of $X$:
+
+$$X'\hat{\varepsilon} = X'(Y - X\hat{\beta}) = X'Y - X'X\hat{\beta} = 0$$
+
+That last equation *is* the normal equation. Same formula, but derived from perpendicularity rather than by differentiating anything.
+
+The geometry makes some results obvious. The Pythagorean theorem gives you the variance decomposition: $\|Y\|^2 = \|\hat{Y}\|^2 + \|\hat{\varepsilon}\|^2$ (when $Y$ is centered). Adding regressors expands $\mathcal{C}(X)$, so the projection gets closer to $Y$, so residuals shrink, so $R^2$ increases.
+
+These first 3 are the most fundamental ones, and are covered in a standard course on linear models. They are not the only ones though, so let's keep going.
+
+---
+
+## 4. MM Orthogonality Conditions
+
+We can also start from a population assumption instead of a sample objective.
+
+Suppose the "true" $\beta$ satisfies an orthogonality condition: the errors are uncorrelated with the regressors.
+
+$$\mathbb{E}[X'\varepsilon] = \mathbb{E}[X'(Y - X\beta)] = 0$$
+
+This gives you $k$ moment conditions. The sample analogs are:
+
+$$\frac{1}{n}X'(Y - X\hat{\beta}) = 0$$
+
+Rearranging: $X'Y = X'X\hat{\beta}$, so $\hat{\beta} = (X'X)^{-1}X'Y$.
+
+With $k$ moment conditions and $k$ parameters, the system is exactly identified.
+
+This derivation is conceptually distinct from (1)-(3). You're not optimizing a loss function. You're not projecting geometrically. You're solving estimating equations that come from assuming population orthogonality holds in the sample too.
+
+In econometrics, this is a nice gateway to the Generalized Method of Moments (GMM), where you can get different estimators by adjusting the assumptions.
+
+---
+
+## 5. Equivariance / Invariance Principles
+
+Now we're getting into the weird ones.
+
+Instead of asking "what minimizes the loss?" we ask "what estimators respect the natural symmetries of the problem?" The interesting thing is that these symmetry requirements *alone* imply OLS.
+
+Let $\delta(X, y)$ be an estimator mapping data to coefficients. Here are three requirements that seem pretty reasonable:
+
+**R1. Equivariance under reparameterization of $X$.** If you transform the regressors by an invertible matrix $A$, so $\tilde{X} = XA$, the coefficient vector should transform contravariantly:
+
+$$\delta(XA, y) = A^{-1}\delta(X, y)$$
+
+This is just saying: if I change units on my regressors, the coefficients should change accordingly.
+
+**R2. Equivariance under affine transformation of $Y$.** This has two parts. First, translation along the column space: for any $c \in \mathbb{R}^k$,
+
+$$\delta(X, y + Xc) = \delta(X, y) + c$$
+
+If you add a known linear combination of regressors to the outcome, the coefficients shift by that amount. Second, scaling: for any $a \neq 0$,
+
+$$\delta(X, ay) = a\delta(X, y)$$
+
+**R3. Dependence only through $X'y$.** There exists some function $g_X$ such that:
+
+$$\delta(X, y) = g_X(X'y)$$
+
+This says: if two outcomes have the same cross-products with the regressors, they give the same estimate. Equivalently, variation in $y$ orthogonal to the column space of $X$ doesn't affect the estimate.
+
+Now here's the fun part. These requirements give you functional equations, and you can actually solve them.
+
+Let $t = X'y$ and $S = X'X$. By R3, we have $\delta(X, y) = g_X(t)$.
+
+Apply the translation part of R2. The cross-product of $y + Xc$ is $X'(y + Xc) = t + Sc$. So:
+
+$$g_X(t + Sc) = g_X(t) + c$$
+
+Set $t = 0$:
+
+$$g_X(Sc) = g_X(0) + c$$
+
+Since $S$ is invertible (full column rank), every $u \in \mathbb{R}^k$ can be written as $u = Sc$ for some $c = S^{-1}u$. So:
+
+$$g_X(u) = g_X(0) + S^{-1}u$$
+
+The function $g_X$ must be affine with slope $S^{-1}$.
+
+Now impose scaling from R2: $g_X(at) = ag_X(t)$. Plugging in the affine form:
+
+$$S^{-1}(at) + g_X(0) = a(S^{-1}t + g_X(0))$$
+
+$$aS^{-1}t + g_X(0) = aS^{-1}t + ag_X(0)$$
+
+This forces $g_X(0) = ag_X(0)$ for all $a \neq 0$, which means $g_X(0) = 0$.
+
+Therefore $g_X(t) = S^{-1}t$, and the estimator is:
+
+$$\delta(X, y) = (X'X)^{-1}X'y$$
+
+OLS falls out. You can verify R1 holds automatically (it's a quick calculation).
+
+What's going on here? R3 says "ignore the part of $y$ orthogonal to the regressors." R2 says "respond correctly to signals in the column space." Together they force the functional form. R1 is then a consistency check.
+
+The connection to sufficiency: under the Gaussian linear model, $X'y$ is a sufficient statistic for $\beta$ (when $\sigma^2$ is known). R3 is basically saying "use only the sufficient statistic." The orthogonal component $M_Xy = (I - P_X)y$ is ancillary for $\beta$, and R3 says don't let it affect your estimate.
+
+I find that this view, though a lot more tedious, builds more intuition around OLS than merely optimizing some objective. So next time someone asks you "What are the assumptions of OLS?" (which is a stupid question), you can reply with these!
+
+---
+
+## 6. Moore-Penrose Pseudoinverse
+
+This one is pure linear algebra. No statistics, no probability.
+
+The setup: you have a linear system $X\beta = y$. When $X$ is square and invertible, the solution is $\beta = X^{-1}y$. But in regression, $X$ is $n \times k$ with $n > k$. The system is overdetermined: there's no exact solution (unless $y$ happens to lie in the column space of $X$).
+
+So we ask a different question: among all $\beta$, which one makes $X\beta$ closest to $y$? And if there are multiple such $\beta$ (which happens when $X$ is rank-deficient), which one has the smallest norm?
+
+This is the **minimum-norm least-squares problem**:
+
+$$\hat{\beta} = \arg\min_{\beta} \|\beta\| \quad \text{subject to} \quad \beta \in \arg\min_{b} \|y - Xb\|$$
+
+In words: first minimize the residual, then among all minimizers, pick the one with smallest $\|\beta\|$.
+
+Penrose (1955) showed this problem has a unique solution for any matrix $X$ and any $y$, and it can be written as $\hat{\beta} = X^+y$ where $X^+$ is the unique matrix satisfying four axioms:
+
+1. $XX^+X = X$
+2. $X^+XX^+ = X^+$
+3. $(XX^+)' = XX^+$
+4. $(X^+X)' = X^+X$
+
+These are purely algebraic conditions. The first two say $X^+$ behaves like an inverse when sandwiched with $X$. The last two say that $XX^+$ and $X^+X$ are symmetric (which makes them orthogonal projections).
+
+Now let's derive what $X^+$ must be when $X$ has full column rank.
+
+The least-squares minimizers are all $\beta$ satisfying the normal equations $X'X\beta = X'y$. When $X$ has full column rank, $X'X$ is invertible, so there's a unique minimizer: $\hat{\beta} = (X'X)^{-1}X'y$. No need for the minimum-norm tiebreaker.
+
+So in the full-rank case, we must have:
+
+$$X^+ = (X'X)^{-1}X'$$
+
+You can verify this satisfies all four Penrose axioms (it's a good exercise).
+
+When $X$ is rank-deficient, you compute $X^+$ via SVD. If $X = U\Sigma V'$, then $X^+ = V\Sigma^+U'$ where $\Sigma^+$ inverts the nonzero singular values and leaves zeros as zeros. The minimum-norm condition is doing real work here: it picks out a unique $\beta$ from the infinite set of least-squares solutions.
+
+What makes this derivation different? The starting point is "solve $X\beta = y$ in some principled way when an exact solution doesn't exist." You're led to the minimum-norm least-squares problem, which has a unique solution characterized by the Penrose axioms. The OLS formula is what falls out.
+
+Admittedly, "minimize $\|y - X\beta\|$" appears in the problem statement, so this isn't fully independent of Route 1. But the framing is different: The minimum-norm condition and the algebraic axioms are doing the work.
+
+
+## 7. The Gauss-Markov Derivation (BLUE)
+
+This is the most "statistical" derivation — it starts not from an objective function or a distribution, but from a constraint on the class of estimators we're willing to consider.
+
+**The Setup:**
+
+We want an estimator $\hat{\beta}$ that is:
+
+1. **Linear:** $\hat{\beta} = Cy$ for some matrix $C$.
+2. **Unbiased:** $\mathbb{E}[Cy] = \beta$. This implies $CX = I$, since $\mathbb{E}[Cy] = C\mathbb{E}[X\beta + \varepsilon] = CX\beta$, which equals $\beta$ for all $\beta$ only if $CX = I$.
+
+**The Goal:**
+
+Find the $C$ that minimizes the variance of the estimator: $\text{Var}(Cy) = \sigma^2 CC'$.
+
+**The Derivation:**
+
+This is a constrained optimization problem. You can use Lagrange multipliers to minimize the trace of $CC'$ subject to $CX = I$.
+
+1. Set up the Lagrangian: $\mathcal{L}(C, \Lambda) = \text{tr}(CC') - \text{tr}(\Lambda(CX - I))$.
+
+2. Differentiate with respect to $C$: $2C - \Lambda X' = 0 \implies C = \frac{1}{2}\Lambda X'$.
+
+3. Substitute into the constraint $CX = I$: $\frac{1}{2}\Lambda X'X = I \implies \frac{1}{2}\Lambda = (X'X)^{-1}$.
+
+4. Solve for $C$: $C = (X'X)^{-1}X'$.
+
+Thus, $\hat{\beta} = (X'X)^{-1}X'y$.
+
+Notice we didn't define "Least Squares" as the goal in any way. We just defined "Minimum Variance" among linear unbiased estimators as the goal, and OLS was the inevitable result.
+
+This is the Gauss-Markov theorem in action. Among all linear unbiased estimators, OLS has the smallest variance. Proving that the OLS estimator is BLUE is very common, but going from the BLUE condition to OLS can also be done, as we have now shown!
+
+Hopefully this gives a little more appreciation of the inevitability of OLS, and a hint of why it's so common. If you do know of a more interesting approach, do let me know and I'll add it!

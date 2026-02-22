@@ -1,0 +1,248 @@
+---
+// Particle Swarm Optimization interactive visualization
+---
+
+<div id="pso-container">
+  <canvas id="pso-canvas"></canvas>
+  <div class="pso-overlay">Click anywhere to move the target</div>
+</div>
+
+<style>
+  #pso-container {
+    position: relative;
+    width: 100%;
+    margin: 2rem 0;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  }
+  #pso-canvas {
+    display: block;
+    width: 100%;
+    height: 450px;
+    cursor: crosshair;
+  }
+  .pso-overlay {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    color: rgba(255,255,255,0.7);
+    font-family: var(--font-mono), monospace;
+    font-size: 0.8rem;
+    pointer-events: none;
+    background: rgba(0,0,0,0.5);
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+</style>
+
+<script>
+(function() {
+    const canvas = document.getElementById('pso-canvas') as HTMLCanvasElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d')!;
+
+    // Configuration
+    const PARTICLE_COUNT = 80;
+    const TRAP_COUNT = 4;
+
+    // Physics
+    const w = 0.729;
+    const c1 = 1.494;
+    const c2 = 1.494;
+
+    // State
+    let width: number, height: number;
+    let particles: Particle[] = [];
+    let globalBest = { x: 0, y: 0, score: Infinity };
+    let target = { x: 0, y: 0 };
+    let traps: Array<{x: number, y: number, strength: number}> = [];
+
+    function resize() {
+        const rect = canvas.parentElement!.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = 450;
+        width = canvas.width;
+        height = canvas.height;
+    }
+
+    function generateTraps() {
+        traps = [];
+        for(let i=0; i<TRAP_COUNT; i++) {
+            traps.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                strength: 1000 + Math.random() * 2000
+            });
+        }
+    }
+
+    function costFunction(x: number, y: number) {
+        let z = 0;
+        let distTarget = (x - target.x)**2 + (y - target.y)**2;
+        z -= 600000 / (distTarget + 800);
+        traps.forEach(trap => {
+            let distTrap = (x - trap.x)**2 + (y - trap.y)**2;
+            z -= trap.strength * 100 / (distTrap + 2000);
+        });
+        return z;
+    }
+
+    class Particle {
+        x: number;
+        y: number;
+        vx: number;
+        vy: number;
+        pBest: {x: number, y: number, score: number};
+        history: Array<{x: number, y: number}>;
+
+        constructor() {
+            this.x = Math.random() * width;
+            this.y = Math.random() * height;
+            this.vx = (Math.random() - 0.5) * 10;
+            this.vy = (Math.random() - 0.5) * 10;
+            this.pBest = { x: this.x, y: this.y, score: Infinity };
+            this.history = [];
+        }
+
+        update() {
+            const score = costFunction(this.x, this.y);
+
+            if (score < this.pBest.score) {
+                this.pBest.score = score;
+                this.pBest.x = this.x;
+                this.pBest.y = this.y;
+            }
+
+            if (score < globalBest.score) {
+                globalBest.score = score;
+                globalBest.x = this.x;
+                globalBest.y = this.y;
+            }
+
+            const r1 = Math.random();
+            const r2 = Math.random();
+
+            this.vx = (w * this.vx) +
+                      (c1 * r1 * (this.pBest.x - this.x)) +
+                      (c2 * r2 * (globalBest.x - this.x));
+            this.vy = (w * this.vy) +
+                      (c1 * r1 * (this.pBest.y - this.y)) +
+                      (c2 * r2 * (globalBest.y - this.y));
+
+            const speed = Math.hypot(this.vx, this.vy);
+            const maxV = 8;
+            if (speed > maxV) {
+                this.vx = (this.vx / speed) * maxV;
+                this.vy = (this.vy / speed) * maxV;
+            }
+
+            this.x += this.vx;
+            this.y += this.vy;
+
+            if (this.x < 0 || this.x > width) this.vx *= -1;
+            if (this.y < 0 || this.y > height) this.vy *= -1;
+
+            this.history.push({x: this.x, y: this.y});
+            if (this.history.length > 15) this.history.shift();
+        }
+
+        draw() {
+            ctx.beginPath();
+            if(this.history.length > 0) {
+                ctx.moveTo(this.history[0].x, this.history[0].y);
+                for(let p of this.history) ctx.lineTo(p.x, p.y);
+            }
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.15)';
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+            ctx.fillStyle = '#0ff';
+            ctx.fill();
+        }
+    }
+
+    function drawLandscape() {
+        ctx.fillStyle = '#0a0a12';
+        ctx.fillRect(0, 0, width, height);
+
+        const resolution = 8;
+
+        for (let x = 0; x < width; x += resolution) {
+            for (let y = 0; y < height; y += resolution) {
+                const val = costFunction(x, y);
+
+                if (Math.abs(val) % 50 < 10) {
+                   ctx.fillStyle = `rgba(50, 50, 80, 0.3)`;
+                   ctx.fillRect(x, y, 2, 2);
+                }
+
+                if (val < -100 && val > -400) {
+                    ctx.fillStyle = `rgba(100, 0, 100, 0.1)`;
+                    ctx.fillRect(x, y, resolution, resolution);
+                }
+            }
+        }
+
+        ctx.beginPath();
+        ctx.arc(target.x, target.y, 20, 0, Math.PI*2);
+        ctx.strokeStyle = '#f00';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        traps.forEach(t => {
+            ctx.beginPath();
+            ctx.arc(t.x, t.y, 15, 0, Math.PI*2);
+            ctx.strokeStyle = 'rgba(255, 0, 255, 0.3)';
+            ctx.stroke();
+        });
+    }
+
+    function animate() {
+        drawLandscape();
+        ctx.globalCompositeOperation = 'screen';
+
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+
+        const flashSize = Math.abs(Math.sin(Date.now() / 200)) * 10;
+        ctx.beginPath();
+        ctx.arc(globalBest.x, globalBest.y, 5 + flashSize, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255, 255, 0, 0.4)';
+        ctx.fill();
+
+        ctx.globalCompositeOperation = 'source-over';
+
+        requestAnimationFrame(animate);
+    }
+
+    function init() {
+        resize();
+        target = { x: width/2, y: height/2 };
+        generateTraps();
+
+        particles = [];
+        for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
+    }
+
+    window.addEventListener('resize', resize);
+    canvas.addEventListener('mousedown', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        target.x = e.clientX - rect.left;
+        target.y = e.clientY - rect.top;
+
+        globalBest.score = Infinity;
+        particles.forEach(p => p.pBest.score = Infinity);
+        generateTraps();
+    });
+
+    init();
+    animate();
+})();
+</script>
