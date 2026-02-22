@@ -33,10 +33,13 @@ const grouped = categories.map(cat => ({
           <ul class="items-list">
             {group.items.map((item) => (
               <li class="archive-item">
-                <a href={item.data.link} target="_blank" rel="noopener" class="item-link">
-                  <span class="item-title">{item.data.title}</span>
-                  <span class="external-icon">↗</span>
-                </a>
+                <div class="item-header">
+                  <a href={item.data.link} target="_blank" rel="noopener" class="item-link">
+                    <span class="item-title">{item.data.title}</span>
+                    <span class="external-icon">↗</span>
+                  </a>
+                  <time class="item-date">{new Date(item.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</time>
+                </div>
                 {item.data.description && (
                   <p class="item-description">{item.data.description}</p>
                 )}
@@ -100,6 +103,19 @@ const grouped = categories.map(cat => ({
 
   .archive-item {
     /* item styling */
+  }
+
+  .item-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .item-date {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
   }
 
   .item-link {
