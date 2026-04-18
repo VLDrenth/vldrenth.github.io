@@ -24,7 +24,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <span class="interests-label">Interests</span>
       <ul class="interests-list">
         <li>Uncertainty quantification</li>
-        <li>Bayesian statistics</li>
+        <li>Probabilistic machine learning</li>
         <li>High-dimensional inference</li>
       </ul>
     </div>
@@ -47,15 +47,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <div>
               <div class="cv-role">MSc, Statistical Science</div>
               <div class="cv-org">University of Oxford</div>
+              <div class="cv-detail">Distinction · Dissertation: Deep Bayesian Active Learning</div>
             </div>
-            <span class="cv-date">2024</span>
+            <span class="cv-date">2023 – 2024</span>
           </li>
           <li class="cv-item">
             <div>
               <div class="cv-role">BSc, Econometrics &amp; Operations Research</div>
               <div class="cv-org">Erasmus University Rotterdam</div>
+              <div class="cv-detail">Cum Laude · GPA 9.2/10</div>
             </div>
-            <span class="cv-date">2023</span>
+            <span class="cv-date">2020 – 2023</span>
           </li>
         </ul>
       </div>
@@ -135,8 +137,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     padding: 0;
     margin: 0;
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--s-2) var(--s-5);
+    flex-direction: column;
+    gap: var(--s-2);
   }
 
   .interests-list li {
