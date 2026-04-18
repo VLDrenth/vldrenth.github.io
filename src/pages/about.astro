@@ -1,0 +1,268 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="About | Vincent Drenth" description="About Vincent Drenth — incoming PhD student at Chicago Booth.">
+  <div class="container">
+
+    <header class="page-header">
+      <h1 class="page-title">About</h1>
+    </header>
+
+    <section class="bio">
+      <p>
+        I'm currently a data scientist at Turnleaf Analytics, working on macroeconomic
+        forecasting.
+        <!-- In 2026 I'll be starting a PhD at the University of Chicago Booth School of Business. -->
+      </p>
+      <p>
+        This site is a place to write up anything I find interesting enough to share or keep.
+      </p>
+    </section>
+
+    <div class="interests">
+      <span class="interests-label">Interests</span>
+      <ul class="interests-list">
+        <li>Uncertainty quantification</li>
+        <li>Bayesian statistics</li>
+        <li>High-dimensional inference</li>
+      </ul>
+    </div>
+
+    <hr class="section-rule" />
+
+    <section class="cv">
+
+      <div class="cv-section">
+        <h2 class="cv-heading">Education</h2>
+        <ul class="cv-list">
+          <!-- <li class="cv-item">
+            <div>
+              <div class="cv-role">PhD, Econometrics &amp; Statistics</div>
+              <div class="cv-org">University of Chicago Booth School of Business</div>
+            </div>
+            <span class="cv-date">2026 —</span>
+          </li> -->
+          <li class="cv-item">
+            <div>
+              <div class="cv-role">MSc, Statistical Science</div>
+              <div class="cv-org">University of Oxford</div>
+            </div>
+            <span class="cv-date">2024</span>
+          </li>
+          <li class="cv-item">
+            <div>
+              <div class="cv-role">BSc, Econometrics &amp; Operations Research</div>
+              <div class="cv-org">Erasmus University Rotterdam</div>
+            </div>
+            <span class="cv-date">2023</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="cv-section">
+        <h2 class="cv-heading">Experience</h2>
+        <ul class="cv-list">
+          <li class="cv-item">
+            <div>
+              <div class="cv-role">Data Scientist</div>
+              <div class="cv-org">Turnleaf Analytics</div>
+              <div class="cv-detail">Macroeconomic forecasting.</div>
+            </div>
+            <span class="cv-date">2024 —</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="cv-section">
+        <h2 class="cv-heading">Contact</h2>
+        <p class="cv-contact">
+          The best way to reach me is by email.
+          You can also find me on <a href="https://github.com/vldrenth" target="_blank" rel="noopener">GitHub&nbsp;↗</a>.
+        </p>
+      </div>
+
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-header {
+    padding: 48px 0 var(--s-6);
+  }
+
+  .page-title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    letter-spacing: var(--tracking-tight);
+    margin: 0;
+    color: var(--ink);
+  }
+
+  .bio {
+    font-family: var(--font-serif);
+    font-size: var(--fs-body);
+    line-height: var(--lh-body);
+    color: var(--ink-2);
+    max-width: 560px;
+  }
+
+  .bio p {
+    margin: 0 0 var(--s-5);
+  }
+
+  /* Research interests — inline after bio */
+  .interests {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s-5);
+    margin-top: var(--s-3);
+    max-width: 560px;
+  }
+
+  .interests-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-3);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .interests-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2) var(--s-5);
+  }
+
+  .interests-list li {
+    font-family: var(--font-serif);
+    font-size: var(--fs-body);
+    color: var(--ink-2);
+    position: relative;
+  }
+
+  .interests-list li::before {
+    content: "—";
+    font-family: var(--font-mono);
+    color: var(--rust);
+    margin-right: var(--s-2);
+  }
+
+  .section-rule {
+    margin: var(--s-7) 0;
+  }
+
+  /* CV */
+  .cv {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-7);
+    padding-bottom: var(--s-7);
+  }
+
+  .cv-section {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: var(--s-5);
+  }
+
+  .cv-heading {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin: 0;
+    padding-top: 4px;
+    /* override global h2 */
+    font-size: 0.75rem !important;
+    color: var(--ink-3) !important;
+    margin-top: 0 !important;
+  }
+
+  .cv-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-5);
+  }
+
+  .cv-item {
+    display: grid;
+    grid-template-columns: 1fr 56px;
+    gap: var(--s-5);
+    align-items: start;
+  }
+
+  .cv-role {
+    font-family: var(--font-serif);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+
+  .cv-date {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--amber);
+    white-space: nowrap;
+    font-variant-numeric: oldstyle-nums;
+    padding-top: 3px;
+  }
+
+  .cv-org {
+    font-family: var(--font-serif);
+    font-size: 0.9375rem;
+    color: var(--ink-2);
+  }
+
+  .cv-detail {
+    font-family: var(--font-serif);
+    font-size: 0.9375rem;
+    color: var(--ink-3);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  .cv-contact {
+    font-family: var(--font-serif);
+    font-size: var(--fs-body);
+    color: var(--ink-2);
+    margin: 0;
+    line-height: var(--lh-body);
+  }
+
+  @media (max-width: 600px) {
+    .interests {
+      flex-direction: column;
+      gap: var(--s-3);
+    }
+
+    .cv-section {
+      grid-template-columns: 1fr;
+      gap: var(--s-3);
+    }
+
+    .cv-heading {
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: var(--s-2);
+    }
+
+    .cv-item {
+      grid-template-columns: 56px 1fr;
+      gap: var(--s-3);
+    }
+
+    .page-title {
+      font-size: 2rem;
+    }
+  }
+</style>

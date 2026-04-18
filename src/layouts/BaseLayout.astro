@@ -7,6 +7,12 @@ interface Props {
 }
 
 const { title, description = "Vincent Drenth's research notes on statistics, econometrics, and machine learning." } = Astro.props;
+
+const pathname = Astro.url.pathname;
+const isHome    = pathname === '/';
+const isNotes   = pathname.startsWith('/blog');
+const isArchive = pathname.startsWith('/archive');
+const isAbout   = pathname.startsWith('/about');
 ---
 
 <!DOCTYPE html>
@@ -16,26 +22,23 @@ const { title, description = "Vincent Drenth's research notes on statistics, eco
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content={description}>
   <title>{title}</title>
-
-  <!-- KaTeX CSS for math rendering -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
-
-  <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 </head>
 <body>
   <header class="site-header">
-    <nav class="container">
-      <a href="/" class="logo">
+    <nav class="container-wide nav-inner">
+      <a href="/" class="logo" aria-label="Vincent Drenth — home">
         <span class="logo-bracket">[</span>
         <span class="logo-text">vld</span>
         <span class="logo-bracket">]</span>
       </a>
       <div class="nav-links">
-        <a href="/">home</a>
-        <a href="/blog">notes</a>
-        <a href="/archive">archive</a>
-        <a href="https://github.com/vldrenth" target="_blank" rel="noopener">github</a>
+        <a href="/"        class:list={['nav-link', { active: isHome }]}>home</a>
+        <a href="/blog"    class:list={['nav-link', { active: isNotes }]}>notes</a>
+        <a href="/archive" class:list={['nav-link', { active: isArchive }]}>archive</a>
+        <a href="/about"   class:list={['nav-link', { active: isAbout }]}>about</a>
+        <a href="https://github.com/vldrenth" target="_blank" rel="noopener" class="nav-link">github&nbsp;↗</a>
       </div>
     </nav>
   </header>
@@ -45,13 +48,12 @@ const { title, description = "Vincent Drenth's research notes on statistics, eco
   </main>
 
   <footer class="site-footer">
-    <div class="container">
-      <p class="footer-text">
-        Thanks for reading
-      </p>
-      <p class="footer-copy">
-        &copy; {new Date().getFullYear()} Vincent Drenth
-      </p>
+    <div class="container-wide footer-inner">
+      <div class="footer-copy">
+        <span class="footer-thanks">Thanks for reading.</span>
+        <span class="footer-year">&copy; {new Date().getFullYear()} Vincent Drenth</span>
+      </div>
+      <img src="/signature-sparkline.svg" width="80" height="20" alt="" class="footer-sparkline" />
     </div>
   </footer>
 
@@ -60,13 +62,14 @@ const { title, description = "Vincent Drenth's research notes on statistics, eco
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(15, 13, 11, 0.9);
+      background: rgba(246, 241, 232, 0.85);
       backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      padding: 1rem 0;
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--rule);
+      padding: 14px 0;
     }
 
-    .site-header nav {
+    .nav-inner {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -79,6 +82,7 @@ const { title, description = "Vincent Drenth's research notes on statistics, eco
       text-decoration: none;
       display: flex;
       gap: 0;
+      background-image: none;
     }
 
     .logo:hover {
@@ -86,74 +90,92 @@ const { title, description = "Vincent Drenth's research notes on statistics, eco
     }
 
     .logo-bracket {
-      color: var(--text-muted);
-      transition: color 0.2s ease;
+      color: var(--ink-3);
+      transition: color var(--dur-1) var(--ease-out);
     }
 
     .logo-text {
-      color: var(--accent-rust);
-      transition: text-shadow 0.2s ease;
+      color: var(--rust);
     }
 
     .logo:hover .logo-bracket {
-      color: var(--accent-amber);
-    }
-
-    .logo:hover .logo-text {
-      text-shadow: 0 0 10px var(--accent-rust);
+      color: var(--ink-2);
     }
 
     .nav-links {
       display: flex;
-      gap: 2rem;
+      gap: 24px;
       font-family: var(--font-mono);
-      font-size: 0.9rem;
+      font-size: 0.875rem;
     }
 
-    .nav-links a {
-      color: var(--text-secondary);
+    .nav-link {
+      color: var(--ink-2);
       text-decoration: none;
-      transition: color 0.2s ease;
+      background-image: none;
+      padding-bottom: 2px;
+      border-bottom: 1px solid transparent;
+      transition: color var(--dur-1) var(--ease-out),
+                  border-color var(--dur-1) var(--ease-out);
     }
 
-    .nav-links a:hover {
-      color: var(--accent-rust);
+    .nav-link:hover {
+      color: var(--rust);
       text-decoration: none;
+      border-bottom-color: transparent;
+    }
+
+    .nav-link.active {
+      color: var(--ink);
+      border-bottom: 1px solid var(--rust);
     }
 
     main {
-      min-height: calc(100vh - 200px);
+      min-height: calc(100vh - 160px);
       padding: 2rem 0;
     }
 
     .site-footer {
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      padding: 3rem 0;
-      margin-top: 4rem;
+      border-top: 1px solid var(--rule);
+      margin-top: var(--s-9);
+      padding: var(--s-6) 0 var(--s-7);
     }
 
-    .footer-text {
-      font-family: var(--font-mono);
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      margin: 0;
-    }
-
-    .footer-text .mono {
-      color: var(--accent-rust);
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--s-4);
     }
 
     .footer-copy {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin: 0.5rem 0 0 0;
-      opacity: 0.6;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .footer-thanks {
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      color: var(--ink-3);
+    }
+
+    .footer-year {
+      font-family: var(--font-mono);
+      font-size: 0.6875rem;
+      color: var(--ink-3);
+      opacity: 0.7;
+    }
+
+    .footer-sparkline {
+      border: none;
+      border-radius: 0;
     }
 
     @media (max-width: 768px) {
       .nav-links {
-        gap: 1rem;
-        font-size: 0.85rem;
+        gap: 16px;
+        font-size: 0.8125rem;
       }
     }
   </style>
