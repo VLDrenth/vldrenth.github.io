@@ -36,7 +36,7 @@ const grouped = categories.map(cat => ({
                   <a href={item.data.link} target="_blank" rel="noopener" class="item-link">
                     {item.data.title} <span class="external-icon">&#8599;</span>
                   </a>
-                  <time class="item-date">
+                  <time class="item-date" datetime={item.data.date}>
                     {new Date(item.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   </time>
                 </div>

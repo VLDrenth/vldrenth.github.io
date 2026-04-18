@@ -13,6 +13,7 @@ const isHome    = pathname === '/';
 const isNotes   = pathname.startsWith('/blog');
 const isArchive = pathname.startsWith('/archive');
 const isAbout   = pathname.startsWith('/about');
+
 ---
 
 <!DOCTYPE html>
@@ -38,7 +39,6 @@ const isAbout   = pathname.startsWith('/about');
         <a href="/blog"    class:list={['nav-link', { active: isNotes }]}>notes</a>
         <a href="/archive" class:list={['nav-link', { active: isArchive }]}>archive</a>
         <a href="/about"   class:list={['nav-link', { active: isAbout }]}>about</a>
-        <a href="https://github.com/vldrenth" target="_blank" rel="noopener" class="nav-link">github&nbsp;↗</a>
       </div>
     </nav>
   </header>
