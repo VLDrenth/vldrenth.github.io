@@ -1,80 +1,234 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+
+const education = [
+  {
+    dates: '2023 – 2024',
+    institution: 'University of Oxford',
+    degree: 'MSc, Statistical Science',
+  },
+  {
+    dates: '2020 – 2023',
+    institution: 'Erasmus University Rotterdam',
+    degree: 'BSc, Econometrics & Operations Research',
+  },
+];
+
+const interests = [
+  'Uncertainty quantification',
+  'Probabilistic machine learning',
+  'High-dimensional inference',
+  'Sequential decision-making under uncertainty',
+];
 ---
 
 <BaseLayout title="Vincent Drenth">
-  <div class="container">
-    <section class="hero">
-      <h1 class="hero-name">Vincent Drenth</h1>
-      <p class="hero-tagline">
-        <span class="tagline-accent">statistics</span> <span class="dot">&middot;</span>
-        <span class="tagline-accent">econometrics</span> <span class="dot">&middot;</span>
-        <span class="tagline-accent">machine learning</span>
-      </p>
-      <p class="hero-description">
-        This site is a place to write up or archive anything I find interesting enough to share or keep.
-      </p>
-      <img src="/wavy-rule.svg" class="hero-rule" width="140" height="12" alt="" />
+  <div class="container profile">
+    <section id="about" aria-labelledby="profile-name">
+      <header class="profile-header">
+        <h1 id="profile-name">Vincent Drenth</h1>
+        <p class="profile-subtitle">Statistics, econometrics &amp; machine learning</p>
+      </header>
+
+      <div class="intro-grid">
+        <div class="biography">
+          <p>
+            I'm a data scientist at <strong>Turnleaf Analytics</strong>, working on
+            macroeconomic forecasting.
+          </p>
+          <p>
+            I studied Statistical Science at the <strong>University of Oxford</strong>
+            and Econometrics &amp; Operations Research at <strong>Erasmus University Rotterdam</strong>.
+          </p>
+          <ul class="contact-links" aria-label="Contact and profiles">
+            <li><a href="mailto:laszlodrenth@gmail.com">Email</a></li>
+            <li><a href="https://github.com/vldrenth" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></li>
+            <li><a href="https://linkedin.com/in/vincentdrenth" target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a></li>
+          </ul>
+        </div>
+
+        <aside class="interests" aria-labelledby="interests-heading">
+          <h2 id="interests-heading">Research interests</h2>
+          <ul>
+            {interests.map(interest => <li>{interest}</li>)}
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <section id="education" class="background-section" aria-labelledby="education-heading">
+      <h2 id="education-heading" class="section-heading">Education</h2>
+      <ul class="entry-list">
+        {education.map(item => (
+          <li class="background-entry">
+            <span class="entry-dates">{item.dates}</span>
+            <div>
+              <h3>{item.institution}</h3>
+              <p class="entry-detail">{item.degree}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section id="experience" class="background-section" aria-labelledby="experience-heading">
+      <h2 id="experience-heading" class="section-heading">Experience</h2>
+      <ul class="entry-list">
+        <li class="background-entry">
+          <span class="entry-dates">2024 — present</span>
+          <div>
+            <h3>Turnleaf Analytics</h3>
+            <p class="entry-detail">Data Scientist</p>
+            <p class="entry-description">Macroeconomic forecasting.</p>
+          </div>
+        </li>
+      </ul>
     </section>
   </div>
 </BaseLayout>
 
 <style>
-  .hero {
-    padding: 72px 0 40px;
+  .profile-header { margin-bottom: 30px; }
+
+  .profile-header h1 {
+    margin: 0 0 12px;
+    font-size: 3rem;
+    font-weight: 500;
+    letter-spacing: -0.025em;
   }
 
-  .hero-name {
-    font-size: var(--fs-3xl);
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    font-weight: 600;
-    margin: 0 0 20px;
-    color: var(--ink);
-    margin-top: 0;
-  }
-
-  .hero-tagline {
-    font-family: var(--font-mono);
-    font-size: 1rem;
-    color: var(--ink-2);
-    margin: 0 0 var(--s-5);
-    line-height: 1.5;
-  }
-
-  .dot {
-    color: var(--ink-3);
-    margin: 0 2px;
-  }
-
-  .tagline-accent {
-    color: var(--rust);
-  }
-
-  .hero-description {
-    font-family: var(--font-serif);
-    font-size: var(--fs-body);
-    line-height: var(--lh-body);
-    color: var(--ink-2);
+  .profile-subtitle {
     margin: 0;
-    max-width: 560px;
+    color: var(--rust);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.7;
   }
 
-  .hero-rule {
-    display: block;
-    margin-top: var(--s-7);
-    opacity: 0.7;
-    border: none;
-    border-radius: 0;
+  .intro-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+    gap: 44px;
+    align-items: start;
   }
 
-  @media (max-width: 768px) {
-    .hero-name {
-      font-size: 2.5rem;
-    }
+  .biography {
+    color: var(--ink-2);
+    font-size: 1.125rem;
+    line-height: 1.7;
+  }
 
-    .hero {
-      padding: 48px 0 32px;
-    }
+  .biography p { margin-bottom: 18px; }
+
+  .contact-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    list-style: none;
+    margin: 24px 0 0;
+    padding: 0;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+  }
+
+  .contact-links li { margin: 0; }
+  .contact-links span { font-size: 0.75rem; }
+
+  .interests {
+    border-left: 1px solid var(--rule-strong);
+    padding-left: 24px;
+    margin-top: 6px;
+  }
+
+  .interests h2 {
+    margin: 0 0 16px;
+    color: var(--ink-3);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.5;
+    font-weight: 500;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .interests ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    color: var(--ink-2);
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+
+  .interests li { margin: 0 0 12px; }
+  .interests li:last-child { margin-bottom: 0; }
+  .background-section { margin-top: 48px; }
+
+  .section-heading {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin: 0 0 28px;
+    font-size: 1.75rem;
+    font-weight: 500;
+  }
+
+  .section-heading::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  .entry-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 26px;
+  }
+
+  .background-entry {
+    display: grid;
+    grid-template-columns: 140px minmax(0, 1fr);
+    gap: 28px;
+    margin: 0;
+  }
+
+  .entry-dates {
+    padding-top: 5px;
+    color: var(--ink-3);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.6;
+  }
+
+  .background-entry h3 {
+    margin: 0 0 4px;
+    font-size: 1.1875rem;
+    line-height: 1.45;
+  }
+
+  .entry-detail,
+  .entry-description {
+    color: var(--ink-2);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .entry-description {
+    color: var(--ink-3);
+    font-size: 1rem;
+    margin-top: 5px;
+  }
+
+  @media (max-width: 600px) {
+    .profile-header h1 { font-size: 2.5rem; }
+    .intro-grid { grid-template-columns: 1fr; gap: 28px; }
+    .interests { padding-left: 18px; margin: 0; }
+    .background-section { margin-top: 40px; }
+    .background-entry { grid-template-columns: 1fr; gap: 6px; }
+    .entry-dates { padding: 0; }
   }
 </style>

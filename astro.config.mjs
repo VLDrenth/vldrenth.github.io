@@ -6,6 +6,9 @@ import rehypeKatex from 'rehype-katex';
 
 export default defineConfig({
   site: 'https://vldrenth.github.io',
+  redirects: {
+    '/about': '/',
+  },
   integrations: [
     mdx(),
     sitemap(),

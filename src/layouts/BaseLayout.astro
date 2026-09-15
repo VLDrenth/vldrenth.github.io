@@ -6,13 +6,11 @@ interface Props {
   description?: string;
 }
 
-const { title, description = "Vincent Drenth's research notes on statistics, econometrics, and machine learning." } = Astro.props;
+const { title, description = "Vincent Drenth — background and interests in statistics, econometrics, and machine learning." } = Astro.props;
 
 const pathname = Astro.url.pathname;
 const isHome    = pathname === '/';
-const isNotes   = pathname.startsWith('/blog');
 const isArchive = pathname.startsWith('/archive');
-const isAbout   = pathname.startsWith('/about');
 
 ---
 
@@ -23,34 +21,34 @@ const isAbout   = pathname.startsWith('/about');
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content={description}>
   <title>{title}</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)}>
 </head>
 <body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
   <header class="site-header">
-    <nav class="container-wide nav-inner">
+    <nav class="container-wide nav-inner" aria-label="Main navigation">
       <a href="/" class="logo" aria-label="Vincent Drenth — home">
         <span class="logo-bracket">[</span>
         <span class="logo-text">vld</span>
         <span class="logo-bracket">]</span>
       </a>
       <div class="nav-links">
-        <a href="/"        class:list={['nav-link', { active: isHome }]}>home</a>
-        <a href="/blog"    class:list={['nav-link', { active: isNotes }]}>notes</a>
-        <a href="/archive" class:list={['nav-link', { active: isArchive }]}>archive</a>
-        <a href="/about"   class:list={['nav-link', { active: isAbout }]}>about</a>
+        <a href="/" class:list={['nav-link', { active: isHome }]} aria-current={isHome ? 'page' : undefined}>about</a>
+        <a href="/#education" class="nav-link">education</a>
+        <a href="/#experience" class="nav-link">experience</a>
+        <a href="/archive/" class:list={['nav-link', { active: isArchive }]} aria-current={isArchive ? 'page' : undefined}>archive</a>
       </div>
     </nav>
   </header>
 
-  <main>
+  <main id="main-content" tabindex="-1">
     <slot />
   </main>
 
   <footer class="site-footer">
     <div class="container-wide footer-inner">
       <div class="footer-copy">
-        <span class="footer-thanks">Thanks for reading.</span>
         <span class="footer-year">&copy; {new Date().getFullYear()} Vincent Drenth</span>
       </div>
       <div class="footer-right">
@@ -78,6 +76,24 @@ const isAbout   = pathname.startsWith('/about');
   </footer>
 
   <style>
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: -100px;
+      left: 16px;
+      z-index: 200;
+      padding: 8px 16px;
+      background: var(--paper);
+    }
+
+    .skip-link:focus {
+      top: 8px;
+    }
+
     .site-header {
       position: sticky;
       top: 0;
@@ -151,14 +167,14 @@ const isAbout   = pathname.startsWith('/about');
     }
 
     main {
-      min-height: calc(100vh - 160px);
-      padding: 2rem 0;
+      flex: 1;
+      width: 100%;
+      padding: 52px 0 64px;
     }
 
     .site-footer {
       border-top: 1px solid var(--rule);
-      margin-top: var(--s-9);
-      padding: var(--s-6) 0 var(--s-7);
+      padding: 22px 0;
     }
 
     .footer-inner {
@@ -174,17 +190,10 @@ const isAbout   = pathname.startsWith('/about');
       gap: 4px;
     }
 
-    .footer-thanks {
-      font-family: var(--font-mono);
-      font-size: 0.8125rem;
-      color: var(--ink-3);
-    }
-
     .footer-year {
       font-family: var(--font-mono);
       font-size: 0.6875rem;
       color: var(--ink-3);
-      opacity: 0.7;
     }
 
     .footer-right {
@@ -215,10 +224,26 @@ const isAbout   = pathname.startsWith('/about');
       border-radius: 0;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 600px) {
+      main {
+        padding: 36px 0 48px;
+      }
+
+      .nav-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
       .nav-links {
-        gap: 16px;
-        font-size: 0.8125rem;
+        width: 100%;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 0.75rem;
+      }
+
+      .footer-sparkline {
+        display: none;
       }
     }
   </style>

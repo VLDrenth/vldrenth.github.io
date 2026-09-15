@@ -36,8 +36,8 @@ const grouped = categories.map(cat => ({
                   <a href={item.data.link} target="_blank" rel="noopener" class="item-link">
                     {item.data.title} <span class="external-icon">&#8599;</span>
                   </a>
-                  <time class="item-date" datetime={item.data.date}>
-                    {new Date(item.data.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  <time class="item-date" datetime={item.data.date.toISOString().slice(0, 10)}>
+                    {item.data.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}
                   </time>
                 </div>
                 {item.data.description && (
@@ -54,14 +54,14 @@ const grouped = categories.map(cat => ({
 
 <style>
   .page-header {
-    padding: 48px 0 var(--s-7);
+    padding: 0 0 var(--s-6);
     border-bottom: 1px solid var(--rule);
     margin-bottom: var(--s-7);
   }
 
   .page-title {
     font-size: 2.5rem;
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: var(--tracking-tight);
     margin: 0 0 10px;
     color: var(--ink);
@@ -79,11 +79,6 @@ const grouped = categories.map(cat => ({
     display: flex;
     flex-direction: column;
     gap: var(--s-7);
-    padding-bottom: var(--s-7);
-  }
-
-  .category-section {
-    /* section */
   }
 
   .category-title {
@@ -96,10 +91,6 @@ const grouped = categories.map(cat => ({
     margin: 0 0 var(--s-4);
     padding-bottom: var(--s-2);
     border-bottom: 1px solid var(--rule);
-    /* override global h2 */
-    font-size: 0.8125rem !important;
-    color: var(--ink-2) !important;
-    margin-top: 0 !important;
   }
 
   .items-list {
@@ -111,10 +102,6 @@ const grouped = categories.map(cat => ({
     gap: var(--s-5);
   }
 
-  .archive-item {
-    /* item */
-  }
-
   .item-row {
     display: flex;
     align-items: baseline;
@@ -123,8 +110,9 @@ const grouped = categories.map(cat => ({
   }
 
   .item-link {
-    font-family: var(--font-mono);
-    font-size: 0.875rem;
+    font-family: var(--font-serif);
+    font-size: 1.1875rem;
+    font-weight: 600;
     color: var(--ink);
     text-decoration: none;
     line-height: 1.5;

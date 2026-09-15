@@ -75,8 +75,8 @@
   --s-9: 96px;
 
   /* Content widths */
-  --content:      680px;
-  --content-wide: 920px;
+  --content:      820px;
+  --content-wide: 820px;
 
   /* Radii */
   --r-1: 4px;
@@ -103,6 +103,10 @@
 html {
   color-scheme: light;
   scroll-behavior: smooth;
+}
+
+[id] {
+  scroll-margin-top: 96px;
 }
 
 body {
@@ -354,6 +358,10 @@ main {
 
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
+  [id] {
+    scroll-margin-top: 130px;
+  }
+
   body {
     font-size: 1.0625rem;
   }
@@ -369,5 +377,15 @@ main {
   .container,
   .container-wide {
     padding: 0 var(--s-4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  main {
+    animation: none;
   }
 }
