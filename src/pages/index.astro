@@ -78,11 +78,12 @@ const education = [
       <h2 id="experience-heading" class="section-heading">Experience</h2>
       <ul class="entry-list">
         <li class="background-entry">
-          <span class="entry-dates">Sep 2024 – Jun 2026</span>
+          <img class="experience-logo" src="/images/education/turnleaf-analytics.webp" alt="Turnleaf Analytics logo" width="96" height="80" loading="lazy" />
           <div>
             <h3>Turnleaf Analytics</h3>
             <p class="entry-detail">Data Scientist</p>
             <p class="entry-description">Macroeconomic forecasting with machine learning. London, UK.</p>
+            <p class="entry-dates experience-dates">Sep 2024 – Jun 2026</p>
           </div>
         </li>
       </ul>
@@ -145,6 +146,14 @@ const education = [
 
   .education-dates { margin: 6px 0 0; }
 
+  .experience-logo {
+    width: 96px;
+    height: 80px;
+    object-fit: contain;
+  }
+
+  .experience-dates { margin: 6px 0 0; }
+
   .entry-dates {
     padding-top: 2px;
     color: var(--text-muted);
@@ -173,5 +182,7 @@ const education = [
     .entry-dates { padding: 0; }
     .education-entry { grid-template-columns: 64px minmax(0, 1fr); gap: 16px; }
     .education-logo { width: 64px; height: 64px; }
+    .background-entry:not(.education-entry) { grid-template-columns: 64px minmax(0, 1fr); gap: 16px; }
+    .experience-logo { width: 64px; height: 64px; }
   }
 </style>
