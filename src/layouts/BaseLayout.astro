@@ -6,7 +6,7 @@ interface Props {
   description?: string;
 }
 
-const { title, description = "Vincent Drenth — background and interests in statistics, econometrics, and machine learning." } = Astro.props;
+const { title, description = "Vincent Drenth — PhD student in Econometrics and Statistics at the University of Chicago Booth School of Business." } = Astro.props;
 const pathname = Astro.url.pathname;
 const isHome = pathname === '/';
 const isArchive = pathname.startsWith('/archive');

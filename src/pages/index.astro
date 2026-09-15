@@ -3,22 +3,23 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 const education = [
   {
-    dates: '2023 – 2024',
-    institution: 'University of Oxford',
-    degree: 'MSc, Statistical Science',
+    dates: 'Sep 2026 – present',
+    institution: 'University of Chicago Booth School of Business',
+    degree: 'PhD, Econometrics and Statistics',
+    logo: '/images/education/chicago-booth.svg',
   },
   {
-    dates: '2020 – 2023',
-    institution: 'Erasmus University Rotterdam',
-    degree: 'BSc, Econometrics & Operations Research',
+    dates: 'Oct 2023 – Sep 2024',
+    institution: 'University of Oxford',
+    degree: 'MSc, Statistical Science',
+    logo: '/images/education/oxford.svg',
   },
-];
-
-const interests = [
-  'Uncertainty quantification',
-  'Probabilistic machine learning',
-  'High-dimensional inference',
-  'Sequential decision-making under uncertainty',
+  {
+    dates: 'Sep 2020 – Jul 2023',
+    institution: 'Erasmus University Rotterdam',
+    degree: 'BSc, Econometrics and Operations Research',
+    logo: '/images/education/erasmus.svg',
+  },
 ];
 ---
 
@@ -27,44 +28,46 @@ const interests = [
     <section id="about" aria-labelledby="profile-name">
       <header class="profile-header">
         <h1 id="profile-name">Vincent Drenth</h1>
-        <p class="profile-subtitle">Statistics, econometrics &amp; machine learning</p>
+        <p class="profile-subtitle">PhD Student at Chicago Booth</p>
       </header>
 
-      <div class="intro-grid">
-        <div class="biography">
-          <p>
-            I'm a data scientist at Turnleaf Analytics, working on
-            macroeconomic forecasting.
-          </p>
-          <p>
-            I studied Statistical Science at the University of Oxford
-            and Econometrics &amp; Operations Research at Erasmus University Rotterdam.
-          </p>
-          <ul class="contact-links" aria-label="Contact and profiles">
-            <li><a href="mailto:laszlodrenth@gmail.com">Email</a></li>
-            <li><a href="https://github.com/vldrenth" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></li>
-            <li><a href="https://linkedin.com/in/vincentdrenth" target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a></li>
-          </ul>
-        </div>
-
-        <aside class="interests" aria-labelledby="interests-heading">
-          <h2 id="interests-heading">Research interests</h2>
-          <ul>
-            {interests.map(interest => <li>{interest}</li>)}
-          </ul>
-        </aside>
+      <div class="biography">
+        <p>
+          I am a first-year PhD student in Econometrics and Statistics at the University of Chicago Booth School of Business.
+        </p>
+        <p>
+          Even earlier, I did my MSc in Statistics at Oxford University, where I was lucky to be advised by Tom Rainforth and Andreas Kirsch on my dissertation.
+          I obtained my BSc in Econometrics and Operations Research from Erasmus University Rotterdam.
+        </p>
+        <p>
+          Before Booth, I worked on macroeconomic forecasting with ML at a startup in London.
+        </p>
+        <ul class="contact-links" aria-label="Contact and profiles">
+          <li><a href="mailto:laszlodrenth@gmail.com">Email</a></li>
+          <li><a href="https://github.com/vldrenth" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></li>
+          <li><a href="https://linkedin.com/in/vincentdrenth" target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a></li>
+        </ul>
       </div>
+    </section>
+
+    <section id="research-interests" class="background-section" aria-labelledby="interests-heading">
+      <h2 id="interests-heading">Research interests</h2>
+      <p class="interests-description">
+        My research interests include uncertainty quantification, probabilistic machine learning,
+        high-dimensional inference, and sequential decision-making under uncertainty.
+      </p>
     </section>
 
     <section id="education" class="background-section" aria-labelledby="education-heading">
       <h2 id="education-heading" class="section-heading">Education</h2>
       <ul class="entry-list">
         {education.map(item => (
-          <li class="background-entry">
-            <span class="entry-dates">{item.dates}</span>
+          <li class="background-entry education-entry">
+            <img class="education-logo" src={item.logo} alt={`${item.institution} logo`} width="96" height="80" loading="lazy" />
             <div>
               <h3>{item.institution}</h3>
               <p class="entry-detail">{item.degree}</p>
+              <p class="entry-dates education-dates">{item.dates}</p>
             </div>
           </li>
         ))}
@@ -75,11 +78,11 @@ const interests = [
       <h2 id="experience-heading" class="section-heading">Experience</h2>
       <ul class="entry-list">
         <li class="background-entry">
-          <span class="entry-dates">2024 — present</span>
+          <span class="entry-dates">Sep 2024 – Jun 2026</span>
           <div>
             <h3>Turnleaf Analytics</h3>
             <p class="entry-detail">Data Scientist</p>
-            <p class="entry-description">Macroeconomic forecasting.</p>
+            <p class="entry-description">Macroeconomic forecasting with machine learning. London, UK.</p>
           </div>
         </li>
       </ul>
@@ -97,13 +100,6 @@ const interests = [
     font-size: 0.9375rem;
   }
 
-  .intro-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
-    gap: 52px;
-    align-items: start;
-  }
-
   .biography { color: var(--text-secondary); }
   .biography p { margin-bottom: 18px; }
 
@@ -118,25 +114,7 @@ const interests = [
   }
 
   .contact-links span { font-size: 0.75rem; }
-  .interests { padding-top: 3px; }
-
-  .interests h2 {
-    margin: 0 0 14px;
-    font-size: 0.875rem;
-    letter-spacing: 0;
-  }
-
-  .interests ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    color: var(--text-muted);
-    font-size: 0.875rem;
-    line-height: 1.6;
-  }
-
-  .interests li { margin-bottom: 10px; }
-  .interests li:last-child { margin-bottom: 0; }
+  .interests-description { color: var(--text-secondary); margin: 0; }
   .background-section { margin-top: 48px; }
 
   .entry-list {
@@ -149,9 +127,23 @@ const interests = [
 
   .background-entry {
     display: grid;
-    grid-template-columns: 140px minmax(0, 1fr);
+    grid-template-columns: 156px minmax(0, 1fr);
     gap: 28px;
   }
+
+  .education-entry {
+    grid-template-columns: 96px minmax(0, 1fr);
+    align-items: center;
+    gap: 24px;
+  }
+
+  .education-logo {
+    width: 96px;
+    height: 80px;
+    object-fit: contain;
+  }
+
+  .education-dates { margin: 6px 0 0; }
 
   .entry-dates {
     padding-top: 2px;
@@ -176,10 +168,10 @@ const interests = [
   }
 
   @media (max-width: 600px) {
-    .intro-grid { grid-template-columns: 1fr; gap: 28px; }
-    .interests { padding: 0; }
     .background-section { margin-top: 40px; }
     .background-entry { grid-template-columns: 1fr; gap: 6px; }
     .entry-dates { padding: 0; }
+    .education-entry { grid-template-columns: 64px minmax(0, 1fr); gap: 16px; }
+    .education-logo { width: 64px; height: 64px; }
   }
 </style>
