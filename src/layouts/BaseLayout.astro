@@ -9,7 +9,6 @@ interface Props {
 const { title, description = "Vincent Drenth — PhD student in Econometrics and Statistics at the University of Chicago Booth School of Business." } = Astro.props;
 const pathname = Astro.url.pathname;
 const isHome = pathname === '/';
-const isArchive = pathname.startsWith('/archive');
 ---
 
 <!DOCTYPE html>
@@ -32,7 +31,6 @@ const isArchive = pathname.startsWith('/archive');
             <a href="/" aria-current={isHome ? 'page' : undefined}>About</a>
             <a href="/#education">Education</a>
             <a href="/#experience">Experience</a>
-            <a href="/archive/" aria-current={isArchive ? 'page' : undefined}>Archive</a>
           </div>
         </nav>
       </div>
