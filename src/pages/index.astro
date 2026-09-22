@@ -27,25 +27,25 @@ const education = [
   <div class="container profile">
     <section id="about" aria-labelledby="profile-name">
       <header class="profile-header">
-        <div>
-          <h1 id="profile-name">Vincent Drenth</h1>
-          <p class="profile-subtitle">PhD Student at Chicago Booth</p>
-        </div>
-        <img class="profile-photo" src="/images/vincent-chicago.jpg" alt="Vincent Drenth in Chicago" width="280" height="350" />
+        <h1 id="profile-name">Vincent Drenth</h1>
+        <p class="profile-subtitle">PhD Student at Chicago Booth</p>
       </header>
 
-      <div class="biography">
-        <p>
-          I am a first-year PhD student in Econometrics and Statistics at the University of Chicago Booth School of Business.
-        </p>
-        <p>
-          Previously, I completed an MSc in Statistics at the University of Oxford, where I worked on Bayesian active learning for my dissertation under the supervision of <a href="https://www.robots.ox.ac.uk/~twgr/">Tom Rainforth</a> and <a href="https://www.blackhc.net/">Andreas Kirsch</a>. I obtained my BSc in Econometrics and Operations Research from Erasmus University Rotterdam. Before Booth, I worked on macroeconomic forecasting with machine learning at a startup in London.
-        </p>
-        <ul class="contact-links" aria-label="Contact and profiles">
-          <li><a href="mailto:vdrenth@chicagobooth.edu">Email</a></li>
-          <li><a href="https://github.com/vldrenth" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></li>
-          <li><a href="https://linkedin.com/in/vincentdrenth" target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a></li>
-        </ul>
+      <div class="profile-intro">
+        <div class="biography">
+          <p>
+            I am a first-year PhD student in Econometrics and Statistics at the University of Chicago Booth School of Business.
+          </p>
+          <p>
+            Previously, I completed an MSc in Statistics at the University of Oxford, where I worked on Bayesian active learning for my dissertation under the supervision of <a href="https://www.robots.ox.ac.uk/~twgr/">Tom Rainforth</a> and <a href="https://www.blackhc.net/">Andreas Kirsch</a>. I obtained my BSc in Econometrics and Operations Research from Erasmus University Rotterdam. Before Booth, I worked on macroeconomic forecasting with machine learning at a startup in London.
+          </p>
+          <ul class="contact-links" aria-label="Contact and profiles">
+            <li><a href="mailto:vdrenth@chicagobooth.edu">Email</a></li>
+            <li><a href="https://github.com/vldrenth" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></li>
+            <li><a href="https://linkedin.com/in/vincentdrenth" target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a></li>
+          </ul>
+        </div>
+        <img class="profile-photo" src="/images/vincent-chicago.jpg" alt="Vincent Drenth in Chicago" width="560" height="700" />
       </div>
     </section>
 
@@ -89,19 +89,20 @@ const education = [
 </BaseLayout>
 
 <style>
-  .profile-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-    margin-bottom: 32px;
+  .profile-header { margin-bottom: 32px; }
+
+  .profile-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 200px;
+    align-items: start;
+    gap: 32px;
   }
   .profile-header h1 { margin-bottom: 10px; }
 
   .profile-photo {
-    flex-shrink: 0;
-    width: 96px;
-    height: 120px;
+    display: block;
+    width: 200px;
+    height: 250px;
     object-fit: cover;
     border-radius: 4px;
   }
@@ -194,9 +195,13 @@ const education = [
   }
 
   @media (max-width: 600px) {
-    .profile-header { gap: 16px; }
-    .profile-header h1 { font-size: clamp(1.5rem, 6vw, 2rem); }
-    .profile-photo { width: 64px; height: 80px; }
+    .profile-intro { grid-template-columns: 1fr; gap: 28px; }
+    .profile-photo {
+      grid-row: 1;
+      justify-self: center;
+      width: 160px;
+      height: 200px;
+    }
     .background-section { margin-top: 40px; }
     .background-entry { grid-template-columns: 1fr; gap: 6px; }
     .entry-dates { padding: 0; }
