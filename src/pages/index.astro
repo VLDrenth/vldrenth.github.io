@@ -27,8 +27,11 @@ const education = [
   <div class="container profile">
     <section id="about" aria-labelledby="profile-name">
       <header class="profile-header">
-        <h1 id="profile-name">Vincent Drenth</h1>
-        <p class="profile-subtitle">PhD Student at Chicago Booth</p>
+        <div>
+          <h1 id="profile-name">Vincent Drenth</h1>
+          <p class="profile-subtitle">PhD Student at Chicago Booth</p>
+        </div>
+        <img class="profile-photo" src="/images/vincent-chicago.jpg" alt="Vincent Drenth in Chicago" width="280" height="350" />
       </header>
 
       <div class="biography">
@@ -86,8 +89,22 @@ const education = [
 </BaseLayout>
 
 <style>
-  .profile-header { margin-bottom: 32px; }
+  .profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
   .profile-header h1 { margin-bottom: 10px; }
+
+  .profile-photo {
+    flex-shrink: 0;
+    width: 96px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
 
   .profile-subtitle {
     margin: 0;
@@ -177,6 +194,9 @@ const education = [
   }
 
   @media (max-width: 600px) {
+    .profile-header { gap: 16px; }
+    .profile-header h1 { font-size: clamp(1.5rem, 6vw, 2rem); }
+    .profile-photo { width: 64px; height: 80px; }
     .background-section { margin-top: 40px; }
     .background-entry { grid-template-columns: 1fr; gap: 6px; }
     .entry-dates { padding: 0; }
