@@ -21,6 +21,14 @@ const education = [
     logo: '/images/education/erasmus.svg',
   },
 ];
+
+const teachingCourses = [
+  'Introduction to Analysis',
+  'Matrix Algebra',
+  'Analysis',
+  'Probability Theory',
+  'Statistics',
+];
 ---
 
 <BaseLayout title="Vincent Drenth">
@@ -54,6 +62,24 @@ const education = [
       <p class="interests-description">
         I’m broadly interested in using machine learning to improve statistical inference, as well as developing statistical methods to understand and evaluate machine learning systems. I’m especially interested in uncertainty quantification and Bayesian methods.
       </p>
+    </section>
+
+    <section id="teaching" class="background-section" aria-labelledby="teaching-heading">
+      <h2 id="teaching-heading" class="section-heading">Teaching</h2>
+      <div class="teaching-entry">
+        <div>
+          <h3>Erasmus University Rotterdam</h3>
+          <p class="entry-detail">Teaching Assistant</p>
+          <p class="entry-dates teaching-dates">Sep 2022 – Jul 2023</p>
+        </div>
+        <div class="teaching-description">
+          <p>Led weekly tutorials in English for groups of 20–30 students across five core mathematics and statistics courses.</p>
+          <p class="course-list-label">Courses</p>
+          <ul class="course-list">
+            {teachingCourses.map(course => <li>{course}</li>)}
+          </ul>
+        </div>
+      </div>
     </section>
 
     <section id="education" class="background-section" aria-labelledby="education-heading">
@@ -196,6 +222,32 @@ const education = [
     margin-top: 4px;
   }
 
+  .teaching-entry {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 28px;
+  }
+
+  .teaching-dates { margin: 6px 0 0; }
+  .teaching-description { color: var(--text-secondary); }
+  .teaching-description p { margin: 0; }
+  .course-list-label {
+    margin-top: 16px !important;
+    color: var(--text);
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .course-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 20px;
+    margin: 4px 0 0;
+    padding-left: 18px;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+
   @media (max-width: 600px) {
     .profile-intro { grid-template-columns: 1fr; gap: 28px; }
     .profile-photo {
@@ -210,5 +262,6 @@ const education = [
     .education-logo { width: 64px; height: 64px; }
     .experience-entry { grid-template-columns: 64px minmax(0, 1fr); gap: 16px; }
     .experience-logo { width: 64px; height: 64px; }
+    .teaching-entry { grid-template-columns: 1fr; gap: 6px; }
   }
 </style>
