@@ -66,20 +66,16 @@ const teachingCourses = [
 
     <section id="teaching" class="background-section" aria-labelledby="teaching-heading">
       <h2 id="teaching-heading" class="section-heading">Teaching</h2>
-      <div class="teaching-entry">
-        <div>
-          <h3>Erasmus University Rotterdam</h3>
-          <p class="entry-detail">Teaching Assistant</p>
-          <p class="entry-dates teaching-dates">Sep 2022 – Jul 2023</p>
-        </div>
-        <div class="teaching-description">
-          <p>Led weekly tutorials in English for groups of 20–30 students across five core mathematics and statistics courses.</p>
-          <p class="course-list-label">Courses</p>
-          <ul class="course-list">
-            {teachingCourses.map(course => <li>{course}</li>)}
-          </ul>
-        </div>
-      </div>
+      <ul class="entry-list">
+        <li class="background-entry teaching-entry">
+          <div>
+            <h3>Erasmus University Rotterdam</h3>
+            <p class="entry-detail">Teaching Assistant</p>
+            <p class="entry-dates teaching-dates">Sep 2022 – Jul 2023</p>
+          </div>
+          <p class="entry-description">{teachingCourses.join(', ')}</p>
+        </li>
+      </ul>
     </section>
 
     <section id="education" class="background-section" aria-labelledby="education-heading">
@@ -229,24 +225,6 @@ const teachingCourses = [
   }
 
   .teaching-dates { margin: 6px 0 0; }
-  .teaching-description { color: var(--text-secondary); }
-  .teaching-description p { margin: 0; }
-  .course-list-label {
-    margin-top: 16px !important;
-    color: var(--text);
-    font-size: 0.875rem;
-    font-weight: 600;
-  }
-
-  .course-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px 20px;
-    margin: 4px 0 0;
-    padding-left: 18px;
-    color: var(--text-muted);
-    font-size: 0.875rem;
-  }
 
   @media (max-width: 600px) {
     .profile-intro { grid-template-columns: 1fr; gap: 28px; }
