@@ -64,20 +64,6 @@ const teachingCourses = [
       </p>
     </section>
 
-    <section id="teaching" class="background-section" aria-labelledby="teaching-heading">
-      <h2 id="teaching-heading" class="section-heading">Teaching</h2>
-      <ul class="entry-list">
-        <li class="background-entry teaching-entry">
-          <div>
-            <h3>Erasmus University Rotterdam</h3>
-            <p class="entry-detail">Teaching Assistant</p>
-            <p class="entry-dates teaching-dates">Sep 2022 – Jul 2023</p>
-          </div>
-          <p class="entry-description">{teachingCourses.join(', ')}</p>
-        </li>
-      </ul>
-    </section>
-
     <section id="education" class="background-section" aria-labelledby="education-heading">
       <h2 id="education-heading" class="section-heading">Education</h2>
       <ul class="entry-list">
@@ -103,6 +89,21 @@ const teachingCourses = [
             <h3>Turnleaf Analytics</h3>
             <p class="entry-detail">Data Scientist</p>
             <p class="entry-dates experience-dates">Sep 2024 – Jun 2026</p>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section id="teaching" class="background-section" aria-labelledby="teaching-heading">
+      <h2 id="teaching-heading" class="section-heading">Teaching</h2>
+      <ul class="entry-list">
+        <li class="background-entry teaching-entry">
+          <img class="experience-logo" src="/images/education/erasmus.svg" alt="Erasmus University Rotterdam logo" width="96" height="80" loading="lazy" />
+          <div>
+            <h3>Erasmus University Rotterdam</h3>
+            <p class="entry-detail">Teaching Assistant</p>
+            <p class="entry-dates experience-dates">Sep 2022 – Jul 2023</p>
+            <p class="entry-description">{teachingCourses.join(', ')}</p>
           </div>
         </li>
       </ul>
@@ -220,11 +221,10 @@ const teachingCourses = [
 
   .teaching-entry {
     display: grid;
-    grid-template-columns: 220px minmax(0, 1fr);
-    gap: 28px;
+    grid-template-columns: 96px minmax(0, 1fr);
+    align-items: center;
+    gap: 24px;
   }
-
-  .teaching-dates { margin: 6px 0 0; }
 
   @media (max-width: 600px) {
     .profile-intro { grid-template-columns: 1fr; gap: 28px; }
@@ -240,6 +240,6 @@ const teachingCourses = [
     .education-logo { width: 64px; height: 64px; }
     .experience-entry { grid-template-columns: 64px minmax(0, 1fr); gap: 16px; }
     .experience-logo { width: 64px; height: 64px; }
-    .teaching-entry { grid-template-columns: 1fr; gap: 6px; }
+    .teaching-entry { grid-template-columns: 64px minmax(0, 1fr); gap: 16px; }
   }
 </style>
