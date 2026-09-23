@@ -7,8 +7,33 @@
   --border: #e7e9ed;
   --link: #285f94;
   --link-hover: #17436f;
+  --selection: #dce9f6;
+  --toggle-hover: #f2f4f7;
   --content-width: 820px;
   --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --background: #171b21;
+  --text: #edf0f4;
+  --text-secondary: #c5cbd4;
+  --text-muted: #a1acba;
+  --border: #333b47;
+  --link: #92bfee;
+  --link-hover: #c1ddfa;
+  --selection: #344c69;
+  --toggle-hover: #262d37;
+}
+
+:root[data-theme='dark'] :is(.education-logo, .experience-logo) {
+  background: #fff;
+  border-radius: 4px;
+  padding: 6px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .theme-ready body { transition: background-color 180ms ease, color 180ms ease; }
 }
 
 *,
@@ -37,7 +62,7 @@ body {
 }
 
 ::selection {
-  background: #dce9f6;
+  background: var(--selection);
   color: var(--text);
 }
 
@@ -95,7 +120,8 @@ a:hover {
   text-decoration: underline;
 }
 
-a:focus-visible {
+a:focus-visible,
+button:focus-visible {
   outline: 2px solid var(--link);
   outline-offset: 4px;
   border-radius: 2px;

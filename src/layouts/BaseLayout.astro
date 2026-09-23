@@ -17,6 +17,14 @@ const isHome = pathname === '/';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content={description}>
+    <script is:inline>
+      (() => {
+        let theme;
+        try { theme = sessionStorage.getItem('theme'); } catch {}
+        document.documentElement.dataset.theme = theme === 'light' || theme === 'dark'
+          ? theme : (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      })();
+    </script>
     <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)}>
@@ -31,6 +39,16 @@ const isHome = pathname === '/';
             <a href="/" aria-current={isHome ? 'page' : undefined}>About</a>
             <a href="/#education">Education</a>
             <a href="/#experience">Experience</a>
+            <button class="theme-toggle" type="button" aria-label="Dark mode" aria-pressed="false" title="Toggle dark mode" hidden>
+              <svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42" />
+              </svg>
+              <svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20.5 13A8.5 8.5 0 0 1 11 3.5 8.5 8.5 0 1 0 20.5 13Z" />
+                <path d="M18 2v4m-2-2h4" />
+              </svg>
+            </button>
           </div>
         </nav>
       </div>
@@ -50,6 +68,22 @@ const isHome = pathname === '/';
         </div>
       </div>
     </footer>
+    <script>
+      const toggle = document.querySelector<HTMLButtonElement>('.theme-toggle');
+      if (toggle) {
+        const root = document.documentElement;
+        const sync = () => toggle.setAttribute('aria-pressed', String(root.dataset.theme === 'dark'));
+        sync();
+        toggle.hidden = false;
+        toggle.addEventListener('click', () => {
+          root.classList.add('theme-ready');
+          const theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+          root.dataset.theme = theme;
+          try { sessionStorage.setItem('theme', theme); } catch {}
+          sync();
+        });
+      }
+    </script>
   </body>
 </html>
 
@@ -95,11 +129,38 @@ const isHome = pathname === '/';
 
   .nav-links {
     display: flex;
+    align-items: center;
     gap: 26px;
     font-size: 0.875rem;
   }
 
   .nav-links a { color: var(--text-muted); }
+
+  .theme-toggle {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .theme-toggle[hidden] { display: none; }
+  .theme-toggle:hover { color: var(--text); background: var(--toggle-hover); }
+  .theme-toggle svg { position: absolute; width: 20px; height: 20px; }
+  .theme-moon { opacity: 0; transform: rotate(-65deg) scale(0.5); }
+  :global([data-theme='dark']) .theme-sun { opacity: 0; transform: rotate(90deg) scale(0.5); }
+  :global([data-theme='dark']) .theme-moon { opacity: 1; transform: rotate(0) scale(1); }
+  @media (prefers-reduced-motion: no-preference) {
+    .theme-toggle svg { transition: transform 240ms cubic-bezier(.2,.8,.2,1), opacity 160ms ease; }
+    :global(.theme-ready) .site-header { transition: background-color 180ms ease; }
+  }
   .nav-links a:hover,
   .nav-links a[aria-current='page'] { color: var(--text); }
 
