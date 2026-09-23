@@ -36,6 +36,20 @@
   .theme-ready body { transition: background-color 180ms ease, color 180ms ease; }
 }
 
+.theme-revealing body,
+.theme-revealing .site-header { transition: none !important; }
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 2; }
+::view-transition-group(theme-toggle) { z-index: 3; animation: none; }
+::view-transition-old(theme-toggle) { display: none; }
+::view-transition-new(theme-toggle) { animation: none; }
+
 *,
 *::before,
 *::after {
