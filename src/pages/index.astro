@@ -103,7 +103,9 @@ const teachingCourses = [
             <h3>Erasmus University Rotterdam</h3>
             <p class="entry-detail">Teaching Assistant</p>
             <p class="entry-dates experience-dates">Sep 2021 – Jul 2022</p>
-            <p class="entry-description">{teachingCourses.join(', ')}</p>
+            <ul class="teaching-courses" aria-label="Courses taught">
+              {teachingCourses.map(course => <li>{course}</li>)}
+            </ul>
           </div>
         </li>
       </ul>
@@ -114,7 +116,6 @@ const teachingCourses = [
       <p class="cv-description">Details of my education, research, teaching, and professional experience.</p>
       <div class="cv-links">
         <a href="/vincent-drenth-cv.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span><span class="visually-hidden"> (opens in a new tab)</span></a>
-        <a href="/vincent-drenth-cv.pdf" download="Vincent-Drenth-CV.pdf">Download PDF <span aria-hidden="true">↓</span></a>
       </div>
     </section>
   </div>
@@ -228,23 +229,23 @@ const teachingCourses = [
 
   .background-entry h3 { line-height: 1.5; }
 
-  .entry-detail,
-  .entry-description {
+  .entry-detail {
     color: var(--text-secondary);
     font-size: 0.9375rem;
     margin: 0;
   }
 
-  .entry-description {
+  .teaching-courses {
     color: var(--text-muted);
     font-size: 0.875rem;
-    margin-top: 4px;
+    margin: 4px 0 0;
+    padding-left: 20px;
   }
 
   .teaching-entry {
     display: grid;
     grid-template-columns: 96px minmax(0, 1fr);
-    align-items: center;
+    align-items: start;
     gap: 24px;
   }
 
