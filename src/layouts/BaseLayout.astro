@@ -40,6 +40,7 @@ const isHome = pathname === '/';
             <a href="/#education">Education</a>
             <a href="/#experience">Work experience</a>
             <a href="/#teaching">Teaching</a>
+            <a href="/#cv">CV</a>
             <button class="theme-toggle" type="button" aria-label="Dark mode" aria-pressed="false" title="Toggle dark mode" hidden>
               <svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="4" />
@@ -162,12 +163,14 @@ const isHome = pathname === '/';
 
   .nav-links {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
+    justify-content: flex-end;
     gap: 26px;
     font-size: 0.875rem;
   }
 
-  .nav-links a { color: var(--text-muted); }
+  .nav-links a { color: var(--text-muted); white-space: nowrap; }
 
   .theme-toggle {
     view-transition-name: theme-toggle;
@@ -228,14 +231,15 @@ const isHome = pathname === '/';
   .footer-links a { color: var(--text-muted); }
 
   @media (max-width: 600px) {
-    .nav-inner { min-height: 68px; gap: 20px; }
-    .nav-links { gap: 18px; font-size: 0.8125rem; }
+    .nav-inner { min-height: 68px; gap: 20px; padding: 12px 0; }
+    .nav-links { gap: 8px 14px; font-size: 0.8125rem; }
     main { padding: 40px 0 56px; }
     .footer-inner { flex-wrap: wrap; gap: 12px; }
   }
 
-  @media (max-width: 380px) {
+  @media (max-width: 480px) {
     .wordmark { display: none; }
-    .nav-links { width: 100%; justify-content: space-between; gap: 12px; }
+    .nav-links { width: 100%; justify-content: space-between; gap: 8px; font-size: 0.75rem; }
+    .theme-toggle { margin-left: auto; }
   }
 </style>

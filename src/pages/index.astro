@@ -108,6 +108,15 @@ const teachingCourses = [
         </li>
       </ul>
     </section>
+
+    <section id="cv" class="background-section" aria-labelledby="cv-heading">
+      <h2 id="cv-heading">Curriculum vitae</h2>
+      <p class="cv-description">Details of my education, research, teaching, and professional experience.</p>
+      <div class="cv-links">
+        <a href="/vincent-drenth-cv.pdf" target="_blank" rel="noopener noreferrer">View PDF <span aria-hidden="true">↗</span><span class="visually-hidden"> (opens in a new tab)</span></a>
+        <a href="/vincent-drenth-cv.pdf" download="Vincent-Drenth-CV.pdf">Download PDF <span aria-hidden="true">↓</span></a>
+      </div>
+    </section>
   </div>
 </BaseLayout>
 
@@ -152,6 +161,19 @@ const teachingCourses = [
   }
 
   .contact-links span { font-size: 0.75rem; }
+  .cv-description { color: var(--text-secondary); margin-bottom: 12px; }
+  .cv-links { display: flex; flex-wrap: wrap; gap: 12px 28px; }
+  .cv-links a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
   .interests-description { color: var(--text-secondary); margin: 0; }
   .background-section { margin-top: 48px; }
 
